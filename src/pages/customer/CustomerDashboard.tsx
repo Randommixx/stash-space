@@ -4,6 +4,9 @@ import { Camera, Star, Calendar, TrendingUp, Search, Heart } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import canonR5 from '@/assets/canon-eos-r5.jpg';
+import sonyA7s3 from '@/assets/sony-a7s3.jpg';
+import arriSkypanel from '@/assets/arri-skypanel.jpg';
 
 export const CustomerDashboard: React.FC = () => {
   const featuredEquipment = [
@@ -13,7 +16,7 @@ export const CustomerDashboard: React.FC = () => {
       category: 'Camera',
       dailyRate: 150,
       rating: 4.9,
-      image: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=300&h=200&fit=crop',
+      image: canonR5,
       vendor: 'Pro Rental Co.'
     },
     {
@@ -22,7 +25,7 @@ export const CustomerDashboard: React.FC = () => {
       category: 'Camera',
       dailyRate: 200,
       rating: 4.8,
-      image: 'https://images.unsplash.com/photo-1606983340090-0b32c6d81e1e?w=300&h=200&fit=crop',
+      image: sonyA7s3,
       vendor: 'Film Studio Gear'
     },
     {
@@ -31,7 +34,7 @@ export const CustomerDashboard: React.FC = () => {
       category: 'Lighting',
       dailyRate: 80,
       rating: 4.9,
-      image: 'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=300&h=200&fit=crop',
+      image: arriSkypanel,
       vendor: 'Lighting Masters'
     }
   ];
