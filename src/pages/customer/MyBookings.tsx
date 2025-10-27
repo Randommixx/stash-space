@@ -5,6 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EnhancedRatingModal } from '@/components/ratings/EnhancedRatingModal';
+import canonR5 from '@/assets/canon-eos-r5.jpg';
+import sonyA7s3 from '@/assets/sony-a7s3.jpg';
+import arriSkypanel from '@/assets/arri-skypanel.jpg';
+import djiRonin from '@/assets/dji-ronin-4d.jpg';
 
 export const MyBookings: React.FC = () => {
   const [activeTab, setActiveTab] = useState('active');
@@ -21,7 +25,7 @@ export const MyBookings: React.FC = () => {
       status: 'confirmed',
       totalAmount: 450,
       dailyRate: 150,
-      image: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=200&h=150&fit=crop',
+      image: canonR5,
       location: 'Downtown Studio',
       bookingDate: '2024-01-10'
     },
@@ -34,7 +38,7 @@ export const MyBookings: React.FC = () => {
       status: 'pending',
       totalAmount: 600,
       dailyRate: 200,
-      image: 'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=200&h=150&fit=crop',
+      image: djiRonin,
       location: 'West Side Location',
       bookingDate: '2024-01-12'
     },
@@ -47,7 +51,7 @@ export const MyBookings: React.FC = () => {
       status: 'completed',
       totalAmount: 420,
       dailyRate: 140,
-      image: 'https://images.unsplash.com/photo-1606983340090-0b32c6d81e1e?w=200&h=150&fit=crop',
+      image: sonyA7s3,
       location: 'North End Studio',
       bookingDate: '2024-01-01',
       rating: 5,
@@ -62,7 +66,7 @@ export const MyBookings: React.FC = () => {
       status: 'completed',
       totalAmount: 360,
       dailyRate: 120,
-      image: 'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=200&h=150&fit=crop',
+      image: arriSkypanel,
       location: 'Central Studio',
       bookingDate: '2023-12-15',
       rating: 4,
