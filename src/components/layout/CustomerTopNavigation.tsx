@@ -1,7 +1,8 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Search, ShoppingCart, Bell, LogOut } from 'lucide-react';
+import { Camera, Search, ShoppingCart, LogOut } from 'lucide-react';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SidebarTrigger } from '@/components/ui/sidebar';
@@ -65,12 +66,7 @@ export const CustomerTopNavigation: React.FC = () => {
           </Button>
 
           {/* Notifications */}
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-destructive">
-              3
-            </Badge>
-          </Button>
+          <NotificationBell />
 
           {/* User Menu */}
           <DropdownMenu>

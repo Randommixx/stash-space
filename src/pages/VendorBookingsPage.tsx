@@ -10,6 +10,8 @@ import { updateBookingStatus } from '@/store/slices/bookingsSlice';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { EnhancedRatingModal } from '@/components/ratings/EnhancedRatingModal';
+import { generateInvoice } from '@/lib/invoiceGenerator';
+import { notifyBookingAccepted, notifyBookingRejected, notifyInvoiceGenerated } from '@/lib/notificationSystem';
 
 export const VendorBookingsPage: React.FC = () => {
   const { toast } = useToast();
@@ -20,15 +22,52 @@ export const VendorBookingsPage: React.FC = () => {
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
 
   const handleAccept = (bookingId: string) => {
-    dispatch(updateBookingStatus({ id: bookingId, status: 'confirmed' }));
+    const booking = bookings.find(b => b.id === bookingId);
+    if (!booking) return;
+
+    // Calculate daily rate from total amount and date range
+    const days = Math.ceil(
+      (new Date(booking.endDate).getTime() - new Date(booking.startDate).getTime()) 
+      / (1000 * 60 * 60 * 24)
+    ) + 1;
+    const dailyRate = booking.totalAmount / days;
+
+    // Generate invoice
+    const invoice = generateInvoice(
+      booking.id,
+      booking.equipmentName,
+      booking.customerName,
+      booking.startDate,
+      booking.endDate,
+      dailyRate,
+      (booking as any).quantity || 1
+    );
+
+    dispatch(updateBookingStatus({ 
+      id: bookingId, 
+      status: 'confirmed',
+      invoice 
+    }));
+
+    // Send notifications
+    notifyBookingAccepted(booking.equipmentName, invoice.referenceNumber);
+    notifyInvoiceGenerated(invoice.referenceNumber);
+
     toast({
-      title: "Booking Accepted",
-      description: "The renter has been notified.",
+      title: "Booking Accepted ✓",
+      description: `Invoice ${invoice.referenceNumber} generated and sent to customer.`,
     });
   };
 
   const handleReject = (bookingId: string) => {
+    const booking = bookings.find(b => b.id === bookingId);
+    
     dispatch(updateBookingStatus({ id: bookingId, status: 'cancelled' }));
+    
+    if (booking) {
+      notifyBookingRejected(booking.equipmentName);
+    }
+
     toast({
       title: "Booking Rejected",
       description: "The renter has been notified.",

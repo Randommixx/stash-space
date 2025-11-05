@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EnhancedRatingModal } from '@/components/ratings/EnhancedRatingModal';
+import { InvoiceCard } from '@/components/bookings/InvoiceCard';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
 import canonR5 from '@/assets/canon-eos-r5.jpg';
 import sonyA7s3 from '@/assets/sony-a7s3.jpg';
 import arriSkypanel from '@/assets/arri-skypanel.jpg';
@@ -14,6 +17,7 @@ export const MyBookings: React.FC = () => {
   const [activeTab, setActiveTab] = useState('active');
   const [ratingModalOpen, setRatingModalOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
+  const { bookings: storeBookings } = useSelector((state: RootState) => state.bookings);
 
   const bookings = [
     {
@@ -263,6 +267,20 @@ export const MyBookings: React.FC = () => {
                       </div>
                     )}
                   </div>
+
+                  {/* Invoice Section - Check Redux store for invoice */}
+                  {(() => {
+                    const storeBooking = storeBookings.find(b => b.id === booking.id);
+                    return storeBooking?.invoice ? (
+                      <div className="lg:w-80">
+                        <InvoiceCard 
+                          invoice={storeBooking.invoice}
+                          customerName={booking.vendor}
+                          equipmentName={booking.equipment}
+                        />
+                      </div>
+                    ) : null;
+                  })()}
                 </div>
               </CardContent>
             </Card>

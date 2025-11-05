@@ -1,5 +1,21 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export interface Invoice {
+  id: string;
+  referenceNumber: string;
+  bookingId: string;
+  generatedAt: string;
+  items: {
+    description: string;
+    quantity: number;
+    rate: number;
+    amount: number;
+  }[];
+  subtotal: number;
+  tax: number;
+  total: number;
+}
+
 export interface Booking {
   id: string;
   equipmentId: string;
@@ -11,6 +27,7 @@ export interface Booking {
   totalAmount: number;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
   createdAt: string;
+  invoice?: Invoice;
 }
 
 interface BookingsState {
@@ -32,10 +49,13 @@ const bookingsSlice = createSlice({
     setBookings: (state, action: PayloadAction<Booking[]>) => {
       state.bookings = action.payload;
     },
-    updateBookingStatus: (state, action: PayloadAction<{ id: string; status: Booking['status'] }>) => {
+    updateBookingStatus: (state, action: PayloadAction<{ id: string; status: Booking['status']; invoice?: Invoice }>) => {
       const booking = state.bookings.find(b => b.id === action.payload.id);
       if (booking) {
         booking.status = action.payload.status;
+        if (action.payload.invoice) {
+          booking.invoice = action.payload.invoice;
+        }
       }
     },
     setStatusFilter: (state, action: PayloadAction<string>) => {
