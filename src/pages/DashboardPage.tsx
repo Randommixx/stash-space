@@ -99,6 +99,12 @@ const alerts = [
 
 export const DashboardPage: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
+  const { bookings } = useSelector((state: RootState) => state.bookings);
+
+  // Calculate active rentals (confirmed or pending status)
+  const activeRentalsCount = bookings.filter(
+    b => b.status === 'confirmed' || b.status === 'pending'
+  ).length;
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -147,7 +153,9 @@ export const DashboardPage: React.FC = () => {
               <stat.icon className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-foreground">{stat.value}</div>
+              <div className="text-2xl font-bold text-foreground">
+                {stat.title === 'Active Rentals' ? activeRentalsCount : stat.value}
+              </div>
               <p className="text-xs text-success">
                 {stat.change} from last month
               </p>
