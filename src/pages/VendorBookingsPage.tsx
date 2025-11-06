@@ -6,12 +6,14 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
-import { updateBookingStatus } from '@/store/slices/bookingsSlice';
+import { updateBookingStatus, addNotification } from '@/store/slices/bookingsSlice';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { EnhancedRatingModal } from '@/components/ratings/EnhancedRatingModal';
 import { generateInvoice } from '@/lib/invoiceGenerator';
-import { notifyBookingAccepted, notifyBookingRejected, notifyInvoiceGenerated } from '@/lib/notificationSystem';
+import { notifyBookingAccepted, notifyBookingRejected, notifyInvoiceGenerated, notifyPaymentStatus } from '@/lib/notificationSystem';
+import { InvoiceCard } from '@/components/bookings/InvoiceCard';
+import { PaymentTracker } from '@/components/bookings/PaymentTracker';
 
 export const VendorBookingsPage: React.FC = () => {
   const { toast } = useToast();
@@ -46,16 +48,22 @@ export const VendorBookingsPage: React.FC = () => {
     dispatch(updateBookingStatus({ 
       id: bookingId, 
       status: 'confirmed',
-      invoice 
+      invoice,
+      paymentStatus: 'held_in_escrow'
     }));
 
-    // Send notifications
-    notifyBookingAccepted(booking.equipmentName, invoice.referenceNumber);
-    notifyInvoiceGenerated(invoice.referenceNumber);
+    // Send notifications and add to history
+    const bookingNotif = notifyBookingAccepted(booking.equipmentName, invoice.referenceNumber, bookingId);
+    const invoiceNotif = notifyInvoiceGenerated(invoice.referenceNumber, bookingId);
+    const paymentNotif = notifyPaymentStatus('held_in_escrow', booking.totalAmount, bookingId);
+    
+    dispatch(addNotification(bookingNotif));
+    dispatch(addNotification(invoiceNotif));
+    dispatch(addNotification(paymentNotif));
 
     toast({
       title: "Booking Accepted ✓",
-      description: `Invoice ${invoice.referenceNumber} generated and sent to customer.`,
+      description: `Invoice ${invoice.referenceNumber} generated. Payment held in escrow.`,
     });
   };
 
@@ -65,7 +73,8 @@ export const VendorBookingsPage: React.FC = () => {
     dispatch(updateBookingStatus({ id: bookingId, status: 'cancelled' }));
     
     if (booking) {
-      notifyBookingRejected(booking.equipmentName);
+      const rejectNotif = notifyBookingRejected(booking.equipmentName, bookingId);
+      dispatch(addNotification(rejectNotif));
     }
 
     toast({
@@ -264,13 +273,25 @@ export const VendorBookingsPage: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="pt-2 border-t">
+                     <div className="pt-2 border-t">
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-muted-foreground">Total Amount</span>
                         <span className="text-2xl font-bold text-primary">₹{booking.totalAmount.toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
+
+                  {/* Invoice & Payment Section */}
+                  {(booking.status === 'confirmed' || booking.status === 'completed') && booking.invoice && (
+                    <div className="lg:w-80 space-y-4">
+                      <InvoiceCard 
+                        invoice={booking.invoice}
+                        customerName={booking.customerName}
+                        equipmentName={booking.equipmentName}
+                      />
+                      <PaymentTracker booking={booking} />
+                    </div>
+                  )}
 
                   {/* Actions */}
                   {booking.status === 'pending' && (

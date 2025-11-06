@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EnhancedRatingModal } from '@/components/ratings/EnhancedRatingModal';
 import { InvoiceCard } from '@/components/bookings/InvoiceCard';
+import { PaymentTracker } from '@/components/bookings/PaymentTracker';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import canonR5 from '@/assets/canon-eos-r5.jpg';
@@ -268,16 +269,17 @@ export const MyBookings: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Invoice Section - Check Redux store for invoice */}
+                  {/* Invoice & Payment Section - Check Redux store */}
                   {(() => {
                     const storeBooking = storeBookings.find(b => b.id === booking.id);
                     return storeBooking?.invoice ? (
-                      <div className="lg:w-80">
+                      <div className="lg:w-80 space-y-4">
                         <InvoiceCard 
                           invoice={storeBooking.invoice}
                           customerName={booking.vendor}
                           equipmentName={booking.equipment}
                         />
+                        <PaymentTracker booking={storeBooking} />
                       </div>
                     ) : null;
                   })()}
