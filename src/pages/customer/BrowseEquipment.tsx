@@ -296,27 +296,34 @@ export const BrowseEquipment: React.FC = () => {
                   {item.description}
                 </p>
                 
-                <div className="flex items-center justify-between pt-2">
-                  <div>
-                    <p className="text-lg font-bold">₹{item.dailyRate}/day</p>
-                    <p className="text-sm text-muted-foreground">₹{item.weeklyRate}/week</p>
+                <div className="pt-3 space-y-3">
+                  <div className="flex items-baseline justify-between">
+                    <div>
+                      <p className="text-2xl font-bold text-primary">₹{item.dailyRate}</p>
+                      <p className="text-xs text-muted-foreground">per day</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold">₹{item.weeklyRate}</p>
+                      <p className="text-xs text-muted-foreground">per week</p>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" asChild>
-                      <Link to={`/customer/equipment/${item.id}`}>
-                        View Details
-                      </Link>
-                    </Button>
-                    <Button 
-                      variant="gradient"
-                      size="sm"
-                      disabled={item.availability !== 'available'}
-                      onClick={() => handleBookNow(item)}
-                    >
-                      <Calendar className="mr-1 h-3 w-3" />
-                      {item.availability === 'available' ? 'Book Now' : 'Unavailable'}
-                    </Button>
-                  </div>
+                  
+                  <Button 
+                    variant="gradient"
+                    size="lg"
+                    className="w-full"
+                    disabled={item.availability !== 'available'}
+                    onClick={() => handleBookNow(item)}
+                  >
+                    <Calendar className="mr-2 h-4 w-4" />
+                    {item.availability === 'available' ? 'Book Now' : 'Unavailable'}
+                  </Button>
+                  
+                  <Button variant="outline" size="sm" className="w-full" asChild>
+                    <Link to={`/customer/equipment/${item.id}`}>
+                      View Details
+                    </Link>
+                  </Button>
                 </div>
               </div>
             </CardContent>
