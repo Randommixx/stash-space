@@ -308,8 +308,8 @@ export const BrowseEquipment: React.FC = () => {
                       </Link>
                     </Button>
                     <Button 
-                      size="sm" 
-                      className="bg-gradient-primary"
+                      variant="gradient"
+                      size="sm"
                       disabled={item.availability !== 'available'}
                       onClick={() => handleBookNow(item)}
                     >
