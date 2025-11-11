@@ -19,6 +19,8 @@ import { AddFilmGearPage } from './pages/AddFilmGearPage';
 import { CustomerDashboard } from './pages/customer/CustomerDashboard';
 import { BrowseEquipment } from './pages/customer/BrowseEquipment';
 import { MyBookings } from './pages/customer/MyBookings';
+import { Favorites } from './pages/customer/Favorites';
+import { CustomerProfile } from './pages/customer/CustomerProfile';
 import { VendorBookingsPage } from './pages/VendorBookingsPage';
 import { ActiveRentalsPage } from './pages/vendor/ActiveRentalsPage';
 import { LandingPage } from './pages/LandingPage';
@@ -64,8 +66,8 @@ const App = () => (
               <Route path="/customer/dashboard" element={<CustomerDashboard />} />
               <Route path="/customer/browse" element={<BrowseEquipment />} />
               <Route path="/customer/bookings" element={<MyBookings />} />
-              <Route path="/customer/favorites" element={<div className="p-6"><h1 className="text-2xl font-bold">Favorites</h1><p className="text-muted-foreground">Coming soon...</p></div>} />
-              <Route path="/customer/profile" element={<div className="p-6"><h1 className="text-2xl font-bold">Customer Profile</h1><p className="text-muted-foreground">Coming soon...</p></div>} />
+              <Route path="/customer/favorites" element={<Favorites />} />
+              <Route path="/customer/profile" element={<CustomerProfile />} />
             </Route>
 
             {/* Catch-all route */}
