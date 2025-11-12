@@ -23,6 +23,9 @@ import { Favorites } from './pages/customer/Favorites';
 import { CustomerProfile } from './pages/customer/CustomerProfile';
 import { VendorBookingsPage } from './pages/VendorBookingsPage';
 import { ActiveRentalsPage } from './pages/vendor/ActiveRentalsPage';
+import { VendorAnalyticsPage } from './pages/vendor/VendorAnalyticsPage';
+import { VendorProfilePage } from './pages/vendor/VendorProfilePage';
+import { VendorSettingsPage } from './pages/vendor/VendorSettingsPage';
 import { LandingPage } from './pages/LandingPage';
 import NotFound from "./pages/NotFound";
 
@@ -56,9 +59,9 @@ const App = () => (
               <Route path="/inventory/add" element={<AddFilmGearPage />} />
               <Route path="/bookings" element={<VendorBookingsPage />} />
               <Route path="/orders" element={<ActiveRentalsPage />} />
-              <Route path="/analytics" element={<div className="p-6"><h1 className="text-2xl font-bold">Analytics</h1><p className="text-muted-foreground">Coming soon...</p></div>} />
-              <Route path="/profile" element={<div className="p-6"><h1 className="text-2xl font-bold">Vendor Profile</h1><p className="text-muted-foreground">Coming soon...</p></div>} />
-              <Route path="/settings" element={<div className="p-6"><h1 className="text-2xl font-bold">Settings</h1><p className="text-muted-foreground">Coming soon...</p></div>} />
+              <Route path="/analytics" element={<VendorAnalyticsPage />} />
+              <Route path="/profile" element={<VendorProfilePage />} />
+              <Route path="/settings" element={<VendorSettingsPage />} />
             </Route>
 
             {/* Customer Protected Routes */}
