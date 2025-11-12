@@ -126,8 +126,9 @@ export const VendorSignupPage: React.FC = () => {
     dispatch(loginSuccess({
       id: confirmationResult ? '1' : '1',
       email: email || phone,
-      name: data.name, // Use KYC verified name
+      name: name, // Use the name entered during signup
       role: 'vendor',
+      kycStatus: data.verificationStatus,
     }));
     
     toast.success('Vendor account created successfully with KYC verification!');

@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { ShieldCheck, AlertCircle, CheckCircle2, FileText } from 'lucide-react';
+import { ShieldCheck, AlertCircle, CheckCircle2, FileText, Upload, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -14,108 +13,114 @@ interface AadhaarKycFlowProps {
 }
 
 export interface KycData {
-  aadhaarNumber: string;
+  aadhaarCardFile: File | null;
+  filmUnionCardFile: File | null;
   isVerified: boolean;
-  name: string;
-  dob: string;
-  address: string;
-  verificationTimestamp: string;
+  verificationStatus: 'pending' | 'approved' | 'rejected';
+  submittedAt: string;
+  verifiedAt?: string;
 }
 
-type KycStep = 'aadhaar-input' | 'otp-verification' | 'verified';
+type KycStep = 'document-upload' | 'pending-verification' | 'verified';
 
 export const AadhaarKycFlow: React.FC<AadhaarKycFlowProps> = ({ onKycComplete, userType }) => {
-  const [step, setStep] = useState<KycStep>('aadhaar-input');
-  const [aadhaarNumber, setAadhaarNumber] = useState('');
-  const [aadhaarOtp, setAadhaarOtp] = useState('');
+  const [step, setStep] = useState<KycStep>('document-upload');
+  const [aadhaarCardFile, setAadhaarCardFile] = useState<File | null>(null);
+  const [filmUnionCardFile, setFilmUnionCardFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [kycData, setKycData] = useState<KycData | null>(null);
 
-  // Validate Aadhaar number format (12 digits)
-  const validateAadhaar = (value: string): boolean => {
-    const cleanedValue = value.replace(/\s/g, '');
-    return /^\d{12}$/.test(cleanedValue);
-  };
-
-  // Format Aadhaar for display (XXXX XXXX XXXX)
-  const formatAadhaarDisplay = (value: string): string => {
-    const cleaned = value.replace(/\s/g, '');
-    const match = cleaned.match(/(\d{1,4})(\d{1,4})?(\d{1,4})?/);
-    if (match) {
-      return [match[1], match[2], match[3]].filter(Boolean).join(' ');
+  const handleAadhaarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+      if (!validTypes.includes(file.type)) {
+        toast.error('Please upload a valid image (JPG, PNG) or PDF file');
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('File size should not exceed 5MB');
+        return;
+      }
+      setAadhaarCardFile(file);
+      toast.success('Aadhaar card uploaded successfully');
     }
-    return value;
   };
 
-  const handleAadhaarSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  const handleFilmUnionFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+      if (!validTypes.includes(file.type)) {
+        toast.error('Please upload a valid image (JPG, PNG) or PDF file');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('File size should not exceed 5MB');
+        return;
+      }
+      setFilmUnionCardFile(file);
+      toast.success('Film Union card uploaded successfully');
+    }
+  };
 
-    if (!validateAadhaar(aadhaarNumber)) {
-      toast.error('Please enter a valid 12-digit Aadhaar number');
-      setIsLoading(false);
+  const handleDocumentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!aadhaarCardFile) {
+      toast.error('Please upload your Aadhaar card');
       return;
     }
 
-    // Mock API call to generate Aadhaar OTP
-    setTimeout(() => {
-      toast.success('OTP sent to your Aadhaar-linked mobile number');
-      setStep('otp-verification');
-      setIsLoading(false);
-    }, 1500);
-  };
-
-  const handleOtpVerification = async (e: React.FormEvent) => {
-    e.preventDefault();
     setIsLoading(true);
 
-    if (aadhaarOtp.length !== 6) {
-      toast.error('Please enter a valid 6-digit OTP');
-      setIsLoading(false);
-      return;
-    }
-
-    // Mock API call to verify OTP and fetch e-KYC data
+    // Mock document submission and admin verification flow
     setTimeout(() => {
-      const mockKycData: KycData = {
-        aadhaarNumber: aadhaarNumber.replace(/\s/g, ''),
-        isVerified: true,
-        name: 'John Doe', // Mock data from Aadhaar
-        dob: '1990-01-01',
-        address: '123 Main Street, Mumbai, Maharashtra - 400001',
-        verificationTimestamp: new Date().toISOString(),
+      const submittedKycData: KycData = {
+        aadhaarCardFile,
+        filmUnionCardFile,
+        isVerified: false,
+        verificationStatus: 'pending',
+        submittedAt: new Date().toISOString(),
       };
 
-      setKycData(mockKycData);
-      setStep('verified');
-      toast.success('Aadhaar verification successful!');
+      setKycData(submittedKycData);
+      setStep('pending-verification');
+      toast.success('Documents submitted successfully! Awaiting admin verification.');
       setIsLoading(false);
-      onKycComplete(mockKycData);
-    }, 2000);
-  };
 
-  const handleResendOtp = async () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      toast.success('OTP resent to your Aadhaar-linked mobile');
-      setIsLoading(false);
-    }, 1000);
+      // Mock admin approval after 3 seconds (simulate admin verification)
+      setTimeout(() => {
+        const approvedKycData: KycData = {
+          ...submittedKycData,
+          isVerified: true,
+          verificationStatus: 'approved',
+          verifiedAt: new Date().toISOString(),
+        };
+        setKycData(approvedKycData);
+        setStep('verified');
+        toast.success('Admin has verified your documents!');
+        onKycComplete(approvedKycData);
+      }, 3000);
+    }, 1500);
   };
 
   return (
     <div className="space-y-4">
       {/* KYC Requirement Notice */}
-      {userType === 'vendor' && step === 'aadhaar-input' && (
+      {userType === 'vendor' && step === 'document-upload' && (
         <Alert className="border-primary/50 bg-primary/5">
           <ShieldCheck className="h-5 w-5 text-primary" />
           <AlertDescription className="text-sm">
-            <strong>Vendor KYC Mandatory:</strong> Aadhaar verification is required for all vendors 
-            to build trust and ensure platform security.
+            <strong>Vendor KYC Mandatory:</strong> Upload your Aadhaar card to verify your identity.
+            Film Union card is optional but recommended for additional trust.
           </AlertDescription>
         </Alert>
       )}
 
-      {userType === 'customer' && step === 'aadhaar-input' && (
+      {userType === 'customer' && step === 'document-upload' && (
         <Alert className="border-accent/50 bg-accent/5">
           <AlertCircle className="h-5 w-5 text-accent" />
           <AlertDescription className="text-sm">
@@ -125,128 +130,158 @@ export const AadhaarKycFlow: React.FC<AadhaarKycFlowProps> = ({ onKycComplete, u
         </Alert>
       )}
 
-      {/* Aadhaar Input Step */}
-      {step === 'aadhaar-input' && (
+      {/* Document Upload Step */}
+      {step === 'document-upload' && (
         <Card className="border-primary/20">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
-              <FileText className="h-5 w-5 text-primary" />
-              Aadhaar Verification
+              <Upload className="h-5 w-5 text-primary" />
+              Upload KYC Documents
             </CardTitle>
             <CardDescription>
-              Enter your 12-digit Aadhaar number to verify your identity
+              Upload your identity documents for admin verification
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleAadhaarSubmit} className="space-y-4">
+            <form onSubmit={handleDocumentSubmit} className="space-y-6">
+              {/* Aadhaar Card Upload */}
               <div className="space-y-2">
-                <Label htmlFor="aadhaar">Aadhaar Number</Label>
-                <Input
-                  id="aadhaar"
-                  type="text"
-                  placeholder="XXXX XXXX XXXX"
-                  value={formatAadhaarDisplay(aadhaarNumber)}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\s/g, '');
-                    if (/^\d{0,12}$/.test(value)) {
-                      setAadhaarNumber(value);
-                    }
-                  }}
-                  maxLength={14}
-                  className="h-12 text-center text-lg tracking-wider"
-                  required
-                />
-                <p className="text-xs text-muted-foreground">
-                  Your Aadhaar data is encrypted and stored securely
-                </p>
+                <Label htmlFor="aadhaar-upload" className="flex items-center gap-2">
+                  Aadhaar Card <span className="text-destructive">*</span>
+                </Label>
+                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors">
+                  <Input
+                    id="aadhaar-upload"
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,application/pdf"
+                    onChange={handleAadhaarFileChange}
+                    className="hidden"
+                  />
+                  <label htmlFor="aadhaar-upload" className="cursor-pointer">
+                    <FileText className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+                    {aadhaarCardFile ? (
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-foreground">{aadhaarCardFile.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {(aadhaarCardFile.size / 1024).toFixed(2)} KB
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium">Click to upload Aadhaar card</p>
+                        <p className="text-xs text-muted-foreground">
+                          JPG, PNG or PDF (max 5MB)
+                        </p>
+                      </div>
+                    )}
+                  </label>
+                </div>
               </div>
+
+              {/* Film Union Card Upload (Optional) */}
+              <div className="space-y-2">
+                <Label htmlFor="union-upload" className="flex items-center gap-2">
+                  Film Union Card <span className="text-muted-foreground text-xs">(Optional)</span>
+                </Label>
+                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors">
+                  <Input
+                    id="union-upload"
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,application/pdf"
+                    onChange={handleFilmUnionFileChange}
+                    className="hidden"
+                  />
+                  <label htmlFor="union-upload" className="cursor-pointer">
+                    <FileText className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+                    {filmUnionCardFile ? (
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-foreground">{filmUnionCardFile.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {(filmUnionCardFile.size / 1024).toFixed(2)} KB
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium">Click to upload Film Union card</p>
+                        <p className="text-xs text-muted-foreground">
+                          JPG, PNG or PDF (max 5MB)
+                        </p>
+                      </div>
+                    )}
+                  </label>
+                </div>
+              </div>
+
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-xs">
+                  Your documents will be reviewed by our admin team. You'll receive a notification once verified.
+                </AlertDescription>
+              </Alert>
 
               <Button
                 type="submit"
                 className="w-full h-11"
                 variant="default"
-                disabled={isLoading || !validateAadhaar(aadhaarNumber)}
+                disabled={isLoading || !aadhaarCardFile}
               >
-                {isLoading ? 'Generating OTP...' : 'Send OTP to Aadhaar Mobile'}
+                {isLoading ? 'Submitting Documents...' : 'Submit for Verification'}
               </Button>
             </form>
           </CardContent>
         </Card>
       )}
 
-      {/* OTP Verification Step */}
-      {step === 'otp-verification' && (
-        <Card className="border-primary/20">
+      {/* Pending Verification Step */}
+      {step === 'pending-verification' && kycData && (
+        <Card className="border-warning/50 bg-warning/5">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <ShieldCheck className="h-5 w-5 text-primary" />
-              Verify OTP
+            <CardTitle className="flex items-center gap-2 text-lg text-warning">
+              <Clock className="h-5 w-5" />
+              Verification Pending
             </CardTitle>
             <CardDescription>
-              Enter the 6-digit OTP sent to your Aadhaar-linked mobile number
+              Your documents are under admin review
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleOtpVerification} className="space-y-6">
-              <div className="space-y-4">
-                <div className="text-center space-y-2">
-                  <Label>Aadhaar OTP</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Aadhaar: {formatAadhaarDisplay(aadhaarNumber)}
-                  </p>
-                </div>
-                <div className="flex justify-center">
-                  <InputOTP
-                    maxLength={6}
-                    value={aadhaarOtp}
-                    onChange={(value) => setAadhaarOtp(value)}
-                  >
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} />
-                      <InputOTPSlot index={1} />
-                      <InputOTPSlot index={2} />
-                      <InputOTPSlot index={3} />
-                      <InputOTPSlot index={4} />
-                      <InputOTPSlot index={5} />
-                    </InputOTPGroup>
-                  </InputOTP>
-                </div>
+          <CardContent className="space-y-3">
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Aadhaar Card:</span>
+                <span className="font-medium text-success flex items-center gap-1">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Uploaded
+                </span>
               </div>
-
-              <Button
-                type="submit"
-                className="w-full h-11"
-                variant="default"
-                disabled={isLoading || aadhaarOtp.length !== 6}
-              >
-                {isLoading ? 'Verifying...' : 'Verify Aadhaar'}
-              </Button>
-
-              <div className="text-center space-y-2">
-                <Button
-                  type="button"
-                  variant="link"
-                  onClick={handleResendOtp}
-                  disabled={isLoading}
-                  className="text-sm"
-                >
-                  Resend OTP
-                </Button>
-                <div>
-                  <Button
-                    type="button"
-                    variant="link"
-                    onClick={() => {
-                      setStep('aadhaar-input');
-                      setAadhaarOtp('');
-                    }}
-                    className="text-sm"
-                  >
-                    Change Aadhaar Number
-                  </Button>
+              {kycData.filmUnionCardFile && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Film Union Card:</span>
+                  <span className="font-medium text-success flex items-center gap-1">
+                    <CheckCircle2 className="h-4 w-4" />
+                    Uploaded
+                  </span>
                 </div>
+              )}
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Status:</span>
+                <span className="font-medium text-warning flex items-center gap-1">
+                  <Clock className="h-4 w-4" />
+                  Awaiting Admin Review
+                </span>
               </div>
-            </form>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Submitted:</span>
+                <span className="font-medium">
+                  {new Date(kycData.submittedAt).toLocaleString()}
+                </span>
+              </div>
+            </div>
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="text-xs">
+                Verification typically takes 24-48 hours. You'll be notified via email once completed.
+              </AlertDescription>
+            </Alert>
           </CardContent>
         </Card>
       )}
@@ -257,24 +292,38 @@ export const AadhaarKycFlow: React.FC<AadhaarKycFlowProps> = ({ onKycComplete, u
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg text-success">
               <CheckCircle2 className="h-5 w-5" />
-              Aadhaar Verified Successfully
+              Documents Verified Successfully
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Name:</span>
-                <span className="font-medium">{kycData.name}</span>
+                <span className="text-muted-foreground">Aadhaar Card:</span>
+                <span className="font-medium text-success flex items-center gap-1">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Verified
+                </span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Aadhaar:</span>
-                <span className="font-medium">XXXX XXXX {aadhaarNumber.slice(-4)}</span>
-              </div>
+              {kycData.filmUnionCardFile && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Film Union Card:</span>
+                  <span className="font-medium text-success flex items-center gap-1">
+                    <CheckCircle2 className="h-4 w-4" />
+                    Verified
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Status:</span>
                 <span className="font-medium text-success flex items-center gap-1">
                   <CheckCircle2 className="h-4 w-4" />
-                  Verified
+                  Approved by Admin
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Verified At:</span>
+                <span className="font-medium">
+                  {kycData.verifiedAt && new Date(kycData.verifiedAt).toLocaleString()}
                 </span>
               </div>
             </div>

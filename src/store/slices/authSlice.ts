@@ -5,6 +5,7 @@ interface User {
   email: string;
   name: string;
   role: 'vendor' | 'customer' | 'admin';
+  kycStatus?: 'pending' | 'approved' | 'rejected' | 'not_submitted';
 }
 
 interface AuthState {

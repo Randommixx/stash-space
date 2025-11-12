@@ -127,8 +127,9 @@ export const CustomerSignupPage: React.FC = () => {
     dispatch(loginSuccess({
       id: confirmationResult ? '2' : '2',
       email: email || phone,
-      name: data.name,
+      name: name, // Use the name entered during signup
       role: 'customer',
+      kycStatus: data.verificationStatus,
     }));
     
     toast.success('Customer account created with KYC verification!');
