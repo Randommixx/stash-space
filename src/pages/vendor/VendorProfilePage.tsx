@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Building2, Mail, Phone, MapPin, Edit2, Save, X, Star, Package, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
+import { KycBadge } from '@/components/kyc/KycBadge';
 
 export const VendorProfilePage: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -70,10 +71,13 @@ export const VendorProfilePage: React.FC = () => {
                   <h2 className="text-xl font-semibold">{profileData.businessName}</h2>
                   <p className="text-sm text-muted-foreground">{profileData.email}</p>
                 </div>
-                <Badge variant="secondary" className="mt-2">
-                  <Building2 className="mr-1 h-3 w-3" />
-                  Verified Vendor
-                </Badge>
+                <div className="flex gap-2">
+                  <Badge variant="secondary">
+                    <Building2 className="mr-1 h-3 w-3" />
+                    Verified Vendor
+                  </Badge>
+                  <KycBadge isVerified={user?.kycStatus === 'approved'} />
+                </div>
               </div>
             </CardContent>
           </Card>

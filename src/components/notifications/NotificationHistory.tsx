@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, CheckCircle, XCircle, FileText, DollarSign, X } from 'lucide-react';
+import { Bell, CheckCircle, XCircle, FileText, DollarSign, X, Download } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,10 +8,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
 import { markNotificationRead, markAllNotificationsRead } from '@/store/slices/bookingsSlice';
 import { formatDistanceToNow } from 'date-fns';
+import { downloadInvoice } from '@/lib/invoiceGenerator';
 
 export const NotificationHistory: React.FC = () => {
   const dispatch = useDispatch();
-  const { notifications } = useSelector((state: RootState) => state.bookings);
+  const { notifications, bookings } = useSelector((state: RootState) => state.bookings);
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -34,6 +35,15 @@ export const NotificationHistory: React.FC = () => {
 
   const handleMarkAllAsRead = () => {
     dispatch(markAllNotificationsRead());
+  };
+
+  const handleDownloadInvoice = (notification: typeof notifications[0]) => {
+    if (notification.bookingId) {
+      const booking = bookings.find(b => b.id === notification.bookingId);
+      if (booking?.invoice) {
+        downloadInvoice(booking.invoice, booking.customerName, booking.equipmentName);
+      }
+    }
   };
 
   const unreadCount = notifications.filter(n => !n.read).length;
@@ -107,9 +117,22 @@ export const NotificationHistory: React.FC = () => {
                           )}
                         </div>
                         {notification.invoiceRef && (
-                          <Badge variant="outline" className="mt-2">
-                            Invoice: {notification.invoiceRef}
-                          </Badge>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge variant="outline">
+                              Invoice: {notification.invoiceRef}
+                            </Badge>
+                            {notification.type === 'invoice_generated' && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDownloadInvoice(notification)}
+                                className="h-7 gap-1"
+                              >
+                                <Download className="h-3 w-3" />
+                                Download PDF
+                              </Button>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
