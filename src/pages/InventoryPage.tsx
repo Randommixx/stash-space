@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import {
   Table,
   TableBody,
@@ -34,7 +35,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { RootState } from '@/store/store';
-import { setSearchTerm, setCategoryFilter } from '@/store/slices/inventorySlice';
+import { setSearchTerm, setCategoryFilter, deleteEquipment, Equipment } from '@/store/slices/inventorySlice';
+import { toast } from 'sonner';
 
 // Mock video production equipment data
 const mockEquipment = [
@@ -197,7 +199,8 @@ const videoCategories = [
 export const InventoryPage: React.FC = () => {
   const dispatch = useDispatch();
   const { searchTerm, categoryFilter } = useSelector((state: RootState) => state.inventory);
-  const [selectedEquipment, setSelectedEquipment] = useState<string | null>(null);
+  const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
 
   const getAvailabilityBadge = (availability: string) => {
     switch (availability) {
@@ -210,6 +213,22 @@ export const InventoryPage: React.FC = () => {
       default:
         return <Badge variant="outline">{availability}</Badge>;
     }
+  };
+
+  const handleView = (equipment: Equipment) => {
+    setSelectedEquipment(equipment);
+    setViewDialogOpen(true);
+  };
+
+  const handleEdit = (equipment: Equipment) => {
+    toast.info('Edit functionality coming soon', {
+      description: 'Equipment editing will be available in the next update'
+    });
+  };
+
+  const handleDelete = (equipmentId: string) => {
+    dispatch(deleteEquipment(equipmentId));
+    toast.success('Equipment removed from inventory');
   };
 
   const filteredEquipment = mockEquipment.filter(item => {
@@ -402,13 +421,18 @@ export const InventoryPage: React.FC = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button variant="ghost" size="icon">
+                      <Button variant="ghost" size="icon" onClick={() => handleView(equipment)}>
                         <Eye className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="icon">
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(equipment)}>
                         <Edit className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => handleDelete(equipment.id)}
+                      >
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -419,6 +443,87 @@ export const InventoryPage: React.FC = () => {
           </Table>
         </CardContent>
       </Card>
+
+      {/* View Equipment Dialog */}
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{selectedEquipment?.name}</DialogTitle>
+            <DialogDescription>{selectedEquipment?.description}</DialogDescription>
+          </DialogHeader>
+          {selectedEquipment && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-semibold mb-2">Details</h4>
+                  <dl className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Brand:</dt>
+                      <dd className="font-medium">{selectedEquipment.brand}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Model:</dt>
+                      <dd className="font-medium">{selectedEquipment.model}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Category:</dt>
+                      <dd className="font-medium capitalize">{selectedEquipment.category}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Condition:</dt>
+                      <dd className="font-medium capitalize">{selectedEquipment.condition}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Serial Number:</dt>
+                      <dd className="font-medium">{selectedEquipment.serialNumber}</dd>
+                    </div>
+                  </dl>
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Pricing</h4>
+                  <dl className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Daily Rate:</dt>
+                      <dd className="font-medium">₹{selectedEquipment.dailyRate.toLocaleString()}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Weekly Rate:</dt>
+                      <dd className="font-medium">₹{selectedEquipment.weeklyRate.toLocaleString()}</dd>
+                    </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Year Purchased:</dt>
+                      <dd className="font-medium">{selectedEquipment.yearPurchased}</dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
+              {Object.keys(selectedEquipment.specifications).length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-2">Specifications</h4>
+                  <dl className="grid grid-cols-2 gap-2 text-sm">
+                    {Object.entries(selectedEquipment.specifications).map(([key, value]) => (
+                      <div key={key} className="flex justify-between">
+                        <dt className="text-muted-foreground capitalize">{key}:</dt>
+                        <dd className="font-medium">{value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              )}
+              {selectedEquipment.accessories.length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-2">Included Accessories</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedEquipment.accessories.map((accessory, index) => (
+                      <Badge key={index} variant="secondary">{accessory}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
