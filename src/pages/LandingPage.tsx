@@ -17,10 +17,13 @@ export const LandingPage: React.FC = () => {
             <span className="text-xl font-bold text-foreground">RentPro</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link to="/login">
-              <Button variant="ghost">Sign In</Button>
+            <Link to="/customer/login">
+              <Button variant="ghost">Customer Sign In</Button>
             </Link>
-            <Link to="/login">
+            <Link to="/vendor/login">
+              <Button variant="ghost">Vendor Sign In</Button>
+            </Link>
+            <Link to="/vendor/register">
               <Button variant="gradient">Get Started</Button>
             </Link>
           </div>
@@ -41,9 +44,15 @@ export const LandingPage: React.FC = () => {
             Track inventory, manage bookings, and grow your revenue effortlessly.
           </p>
           <div className="flex gap-4 justify-center">
-            <Link to="/login">
+            <Link to="/vendor/register">
               <Button size="lg" variant="gradient" className="shadow-primary">
-                Start Free Trial
+                Start as Vendor
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
+            <Link to="/customer/register">
+              <Button size="lg" variant="outline" className="shadow-medium">
+                Browse Equipment
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </Link>
@@ -150,7 +159,7 @@ export const LandingPage: React.FC = () => {
               <p className="text-lg text-muted-foreground mb-8">
                 Join thousands of vendors who trust RentPro to manage their equipment rentals
               </p>
-              <Link to="/login">
+              <Link to="/vendor/register">
                 <Button size="lg" variant="gradient" className="shadow-primary">
                   Get Started Today
                   <ArrowRight className="w-4 h-4 ml-2" />
