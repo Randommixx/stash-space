@@ -26,6 +26,8 @@ import { ActiveRentalsPage } from './pages/vendor/ActiveRentalsPage';
 import { VendorAnalyticsPage } from './pages/vendor/VendorAnalyticsPage';
 import { VendorProfilePage } from './pages/vendor/VendorProfilePage';
 import { VendorSettingsPage } from './pages/vendor/VendorSettingsPage';
+import ServicePersonnelPage from './pages/vendor/ServicePersonnelPage';
+import PhotoVerificationPage from './pages/vendor/PhotoVerificationPage';
 import { LandingPage } from './pages/LandingPage';
 import NotFound from "./pages/NotFound";
 
@@ -60,6 +62,8 @@ const App = () => (
               <Route path="/bookings" element={<VendorBookingsPage />} />
               <Route path="/orders" element={<ActiveRentalsPage />} />
               <Route path="/analytics" element={<VendorAnalyticsPage />} />
+              <Route path="/service-personnel" element={<ServicePersonnelPage />} />
+              <Route path="/photo-verification" element={<PhotoVerificationPage />} />
               <Route path="/profile" element={<VendorProfilePage />} />
               <Route path="/settings" element={<VendorSettingsPage />} />
             </Route>

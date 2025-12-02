@@ -8,7 +8,8 @@ import {
   Settings,
   BarChart3,
   Film,
-  Lightbulb,
+  Users,
+  Shield,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -47,6 +48,16 @@ const menuItems = [
     title: 'Reports',
     url: '/analytics',
     icon: BarChart3,
+  },
+  {
+    title: 'Service Personnel',
+    url: '/service-personnel',
+    icon: Users,
+  },
+  {
+    title: 'Photo Verification',
+    url: '/photo-verification',
+    icon: Shield,
   },
 ];
 
