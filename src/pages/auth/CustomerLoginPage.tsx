@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { useDispatch } from 'react-redux';
 import { loginSuccess } from '@/store/slices/authSlice';
 
 export const CustomerLoginPage: React.FC = () => {
@@ -14,37 +15,74 @@ export const CustomerLoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { signInWithEmail, signInWithGoogle } = useAuth();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Mock authentication - replace with actual API call
-    setTimeout(() => {
-      if (email && password) {
-        dispatch(loginSuccess({
-          id: '2',
-          email,
-          name: 'John Customer',
-          role: 'customer',
-        }));
-        toast({
-          title: 'Login successful',
-          description: 'Welcome to FilmGear Pro!',
-        });
-        navigate('/customer/dashboard');
-      } else {
-        toast({
-          title: 'Login failed',
-          description: 'Please check your credentials and try again.',
-          variant: 'destructive',
-        });
-      }
-      setIsLoading(false);
-    }, 1000);
+    const { user, error } = await signInWithEmail(email, password);
+    
+    if (error) {
+      toast({
+        title: 'Login failed',
+        description: getErrorMessage(error),
+        variant: 'destructive',
+      });
+    } else if (user) {
+      // Override role to customer for this login page
+      dispatch(loginSuccess({
+        id: user.uid,
+        email: user.email || '',
+        name: user.displayName || user.email?.split('@')[0] || 'User',
+        role: 'customer',
+      }));
+      toast({
+        title: 'Login successful',
+        description: 'Welcome to FilmGear Pro!',
+      });
+      navigate('/customer/dashboard');
+    }
+    setIsLoading(false);
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    const { user, error } = await signInWithGoogle();
+    
+    if (error) {
+      toast({
+        title: 'Google sign-in failed',
+        description: getErrorMessage(error),
+        variant: 'destructive',
+      });
+    } else if (user) {
+      // Override role to customer for this login page
+      dispatch(loginSuccess({
+        id: user.uid,
+        email: user.email || '',
+        name: user.displayName || user.email?.split('@')[0] || 'User',
+        role: 'customer',
+      }));
+      toast({
+        title: 'Login successful',
+        description: 'Welcome to FilmGear Pro!',
+      });
+      navigate('/customer/dashboard');
+    }
+    setIsLoading(false);
+  };
+
+  const getErrorMessage = (error: string): string => {
+    if (error.includes('user-not-found')) return 'No account found with this email';
+    if (error.includes('wrong-password')) return 'Incorrect password';
+    if (error.includes('invalid-email')) return 'Invalid email address';
+    if (error.includes('too-many-requests')) return 'Too many attempts. Please try again later';
+    if (error.includes('popup-closed')) return 'Sign-in popup was closed';
+    return error;
   };
 
   return (
@@ -135,27 +173,20 @@ export const CustomerLoginPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
-              <Button variant="social" className="h-12">
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                  <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-              </Button>
-              <Button variant="social" className="h-12">
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-                </svg>
-              </Button>
-              <Button variant="social" className="h-12">
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M4.5 12.5A7.5 7.5 0 0 1 12 5a7.47 7.47 0 0 1 5.02 1.91l-2.04 2.04A4.5 4.5 0 0 0 7.5 12.5a4.5 4.5 0 0 0 4.5 4.5c1.93 0 3.57-1.22 4.22-2.91H12v-3h8.5c.08.47.13.97.13 1.5A7.5 7.5 0 0 1 12 20a7.5 7.5 0 0 1-7.5-7.5z"/>
-                  <path fill="#EA4335" d="M4.5 12.5A7.5 7.5 0 0 1 12 5c1.95 0 3.68.75 5.02 1.97l-2.04 2.04A4.48 4.48 0 0 0 12 7.5a4.5 4.5 0 0 0-4.16 2.78L5.43 8.37A7.47 7.47 0 0 1 4.5 12.5z"/>
-                </svg>
-              </Button>
-            </div>
+            <Button 
+              variant="outline" 
+              className="w-full h-12"
+              onClick={handleGoogleSignIn}
+              disabled={isLoading}
+            >
+              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              Continue with Google
+            </Button>
 
             <div className="mt-6 text-center space-y-2">
               <span className="text-sm text-muted-foreground">
