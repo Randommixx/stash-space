@@ -20,8 +20,11 @@ import { logout } from '@/store/slices/authSlice';
 
 export const CustomerTopNavigation: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
+  const { items: cartItems } = useSelector((state: RootState) => state.cart);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -58,11 +61,13 @@ export const CustomerTopNavigation: React.FC = () => {
         {/* Right side */}
         <div className="flex items-center gap-3">
           {/* Cart */}
-          <Button variant="ghost" size="icon" className="relative">
+          <Button variant="ghost" size="icon" className="relative" onClick={() => navigate('/customer/cart')}>
             <ShoppingCart className="h-5 w-5" />
-            <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
-              2
-            </Badge>
+            {cartCount > 0 && (
+              <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
+                {cartCount}
+              </Badge>
+            )}
           </Button>
 
           {/* Notifications */}

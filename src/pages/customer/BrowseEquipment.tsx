@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Filter, Star, Heart, Calendar } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Search, Filter, Star, Heart, Calendar, ShoppingCart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +16,10 @@ import {
 import { BookingModal } from '@/components/bookings/BookingModal';
 import { VendorRatingBadge } from '@/components/ratings/VendorRatingBadge';
 import { Slider } from '@/components/ui/slider';
+import { addToCart } from '@/store/slices/cartSlice';
+import { toggleFavorite } from '@/store/slices/favoritesSlice';
+import { RootState } from '@/store/store';
+import { useToast } from '@/hooks/use-toast';
 import canonR5 from '@/assets/canon-eos-r5.jpg';
 import sonyA7s3 from '@/assets/sony-a7s3.jpg';
 import canon2470 from '@/assets/canon-24-70mm.jpg';
@@ -23,6 +28,9 @@ import rodeVideomic from '@/assets/rode-videomic.jpg';
 import djiRonin from '@/assets/dji-ronin-4d.jpg';
 
 export const BrowseEquipment: React.FC = () => {
+  const dispatch = useDispatch();
+  const { toast } = useToast();
+  const { items: favorites } = useSelector((state: RootState) => state.favorites);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [sortBy, setSortBy] = useState('name');
@@ -41,7 +49,7 @@ export const BrowseEquipment: React.FC = () => {
       weeklyRate: 900,
       rating: 4.9,
       reviewCount: 42,
-      availability: 'available',
+      availability: 'available' as const,
       image: canonR5,
       vendor: 'Pro Rental Co.',
       description: '45MP Full-Frame Mirrorless Camera with 8K Video'
@@ -55,7 +63,7 @@ export const BrowseEquipment: React.FC = () => {
       weeklyRate: 840,
       rating: 4.8,
       reviewCount: 38,
-      availability: 'available',
+      availability: 'available' as const,
       image: sonyA7s3,
       vendor: 'Film Studio Gear',
       description: '4K Full-Frame Mirrorless Camera for Video'
@@ -69,7 +77,7 @@ export const BrowseEquipment: React.FC = () => {
       weeklyRate: 480,
       rating: 4.9,
       reviewCount: 56,
-      availability: 'available',
+      availability: 'available' as const,
       image: canon2470,
       vendor: 'Lens Masters',
       description: 'Professional Standard Zoom Lens'
@@ -83,7 +91,7 @@ export const BrowseEquipment: React.FC = () => {
       weeklyRate: 720,
       rating: 4.9,
       reviewCount: 24,
-      availability: 'available',
+      availability: 'available' as const,
       image: arriSkypanel,
       vendor: 'Lighting Masters',
       description: 'Full-Color LED Panel with Remote Control'
@@ -97,7 +105,7 @@ export const BrowseEquipment: React.FC = () => {
       weeklyRate: 210,
       rating: 4.7,
       reviewCount: 31,
-      availability: 'rented',
+      availability: 'rented' as const,
       image: rodeVideomic,
       vendor: 'Sound Solutions',
       description: 'Professional On-Camera Microphone'
@@ -111,7 +119,7 @@ export const BrowseEquipment: React.FC = () => {
       weeklyRate: 1200,
       rating: 4.8,
       reviewCount: 19,
-      availability: 'available',
+      availability: 'available' as const,
       image: djiRonin,
       vendor: 'Motion Pictures',
       description: 'Cinema Camera Gimbal System'
@@ -154,6 +162,50 @@ export const BrowseEquipment: React.FC = () => {
     setSelectedEquipment(item);
     setBookingModalOpen(true);
   };
+
+  const handleAddToCart = (item: any) => {
+    dispatch(addToCart({
+      id: `cart-${item.id}`,
+      equipmentId: item.id,
+      name: item.name,
+      brand: item.brand,
+      vendor: item.vendor,
+      dailyRate: item.dailyRate,
+      weeklyRate: item.weeklyRate,
+      image: item.image,
+      category: item.category,
+    }));
+    toast({
+      title: "Added to Cart",
+      description: `${item.name} has been added to your cart.`,
+    });
+  };
+
+  const handleToggleFavorite = (item: any) => {
+    const isFavorite = favorites.some(f => f.equipmentId === item.id);
+    dispatch(toggleFavorite({
+      equipmentId: item.id,
+      name: item.name,
+      brand: item.brand,
+      vendor: item.vendor,
+      category: item.category,
+      dailyRate: item.dailyRate,
+      weeklyRate: item.weeklyRate,
+      rating: item.rating,
+      reviewCount: item.reviewCount,
+      image: item.image,
+      availability: item.availability,
+      description: item.description,
+    }));
+    toast({
+      title: isFavorite ? "Removed from Favorites" : "Added to Favorites",
+      description: isFavorite 
+        ? `${item.name} has been removed from your favorites.`
+        : `${item.name} has been added to your favorites.`,
+    });
+  };
+
+  const isFavorite = (itemId: string) => favorites.some(f => f.equipmentId === itemId);
 
   return (
     <div className="space-y-6">
@@ -224,7 +276,7 @@ export const BrowseEquipment: React.FC = () => {
                       Minimum Rating
                     </label>
                     <span className="text-sm text-muted-foreground">
-                      {minRating[0].toFixed(1)}+ <Star className="inline h-3 w-3 fill-[#FFD700] text-[#FFD700]" />
+                      {minRating[0].toFixed(1)}+ <Star className="inline h-3 w-3 fill-warning text-warning" />
                     </span>
                   </div>
                   <Slider
@@ -254,17 +306,22 @@ export const BrowseEquipment: React.FC = () => {
         {filteredEquipment.map((item) => (
           <Card key={item.id} className="group hover:shadow-md transition-shadow">
             <div className="relative">
-              <img
-                src={item.image}
-                alt={item.name}
-                className="w-full h-48 object-cover rounded-t-lg"
-              />
+              <Link to={`/customer/equipment/${item.id}`}>
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-full h-48 object-cover rounded-t-lg"
+                />
+              </Link>
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute top-2 right-2 bg-white/80 hover:bg-white"
+                className={`absolute top-2 right-2 bg-white/80 hover:bg-white ${
+                  isFavorite(item.id) ? 'text-red-500' : ''
+                }`}
+                onClick={() => handleToggleFavorite(item)}
               >
-                <Heart className="h-4 w-4" />
+                <Heart className={`h-4 w-4 ${isFavorite(item.id) ? 'fill-current' : ''}`} />
               </Button>
               <Badge 
                 className={`absolute top-2 left-2 ${
@@ -280,9 +337,11 @@ export const BrowseEquipment: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="font-semibold group-hover:text-primary transition-colors">
-                      {item.name}
-                    </h3>
+                    <Link to={`/customer/equipment/${item.id}`}>
+                      <h3 className="font-semibold group-hover:text-primary transition-colors">
+                        {item.name}
+                      </h3>
+                    </Link>
                     <p className="text-sm text-muted-foreground">{item.vendor}</p>
                   </div>
                   <VendorRatingBadge 
@@ -308,16 +367,26 @@ export const BrowseEquipment: React.FC = () => {
                     </div>
                   </div>
                   
-                  <Button 
-                    variant="gradient"
-                    size="lg"
-                    className="w-full"
-                    disabled={item.availability !== 'available'}
-                    onClick={() => handleBookNow(item)}
-                  >
-                    <Calendar className="mr-2 h-4 w-4" />
-                    {item.availability === 'available' ? 'Book Now' : 'Unavailable'}
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="gradient"
+                      size="lg"
+                      className="flex-1"
+                      disabled={item.availability !== 'available'}
+                      onClick={() => handleBookNow(item)}
+                    >
+                      <Calendar className="mr-2 h-4 w-4" />
+                      {item.availability === 'available' ? 'Book Now' : 'Unavailable'}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handleAddToCart(item)}
+                      disabled={item.availability !== 'available'}
+                    >
+                      <ShoppingCart className="h-4 w-4" />
+                    </Button>
+                  </div>
                   
                   <Button variant="outline" size="sm" className="w-full" asChild>
                     <Link to={`/customer/equipment/${item.id}`}>
