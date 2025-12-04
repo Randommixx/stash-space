@@ -21,6 +21,8 @@ import { BrowseEquipment } from './pages/customer/BrowseEquipment';
 import { MyBookings } from './pages/customer/MyBookings';
 import { Favorites } from './pages/customer/Favorites';
 import { CustomerProfile } from './pages/customer/CustomerProfile';
+import { Cart } from './pages/customer/Cart';
+import { EquipmentDetails } from './pages/customer/EquipmentDetails';
 import { VendorBookingsPage } from './pages/VendorBookingsPage';
 import { ActiveRentalsPage } from './pages/vendor/ActiveRentalsPage';
 import { VendorAnalyticsPage } from './pages/vendor/VendorAnalyticsPage';
@@ -68,10 +70,11 @@ const App = () => (
               <Route path="/settings" element={<VendorSettingsPage />} />
             </Route>
 
-            {/* Customer Protected Routes */}
             <Route element={<ProtectedRoute requiredRole="customer"><CustomerLayout /></ProtectedRoute>}>
               <Route path="/customer/dashboard" element={<CustomerDashboard />} />
               <Route path="/customer/browse" element={<BrowseEquipment />} />
+              <Route path="/customer/equipment/:id" element={<EquipmentDetails />} />
+              <Route path="/customer/cart" element={<Cart />} />
               <Route path="/customer/bookings" element={<MyBookings />} />
               <Route path="/customer/favorites" element={<Favorites />} />
               <Route path="/customer/profile" element={<CustomerProfile />} />

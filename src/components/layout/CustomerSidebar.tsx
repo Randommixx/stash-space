@@ -11,6 +11,10 @@ const menuItems = [{
   url: '/customer/browse',
   icon: Search
 }, {
+  title: 'Cart',
+  url: '/customer/cart',
+  icon: ShoppingCart
+}, {
   title: 'My Bookings',
   url: '/customer/bookings',
   icon: Calendar

@@ -1,14 +1,21 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Camera, Star, Calendar, TrendingUp, Search, Heart } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { Camera, Star, Calendar, TrendingUp, Search, Heart, ShoppingCart } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { RootState } from '@/store/store';
 import canonR5 from '@/assets/canon-eos-r5.jpg';
 import sonyA7s3 from '@/assets/sony-a7s3.jpg';
 import arriSkypanel from '@/assets/arri-skypanel.jpg';
 
 export const CustomerDashboard: React.FC = () => {
+  const { items: favorites } = useSelector((state: RootState) => state.favorites);
+  const { items: cartItems } = useSelector((state: RootState) => state.cart);
+  const { bookings } = useSelector((state: RootState) => state.bookings);
+
+  const activeBookings = bookings.filter(b => b.status === 'pending' || b.status === 'confirmed').length;
   const featuredEquipment = [
     {
       id: '1',
@@ -74,9 +81,9 @@ export const CustomerDashboard: React.FC = () => {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">3</div>
+            <div className="text-2xl font-bold">{activeBookings}</div>
             <p className="text-xs text-muted-foreground">
-              +1 from last month
+              Currently active
             </p>
           </CardContent>
         </Card>
@@ -86,9 +93,21 @@ export const CustomerDashboard: React.FC = () => {
             <Heart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
+            <div className="text-2xl font-bold">{favorites.length}</div>
             <p className="text-xs text-muted-foreground">
               Equipment saved
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Cart Items</CardTitle>
+            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{cartItems.length}</div>
+            <p className="text-xs text-muted-foreground">
+              Ready to book
             </p>
           </CardContent>
         </Card>
@@ -110,9 +129,9 @@ export const CustomerDashboard: React.FC = () => {
             <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8</div>
+            <div className="text-2xl font-bold">{bookings.filter(b => b.status === 'completed').length}</div>
             <p className="text-xs text-muted-foreground">
-              Average: 4.8/5
+              Completed rentals
             </p>
           </CardContent>
         </Card>
@@ -124,11 +143,17 @@ export const CustomerDashboard: React.FC = () => {
           <CardTitle>Quick Actions</CardTitle>
           <CardDescription>Get started with your next rental</CardDescription>
         </CardHeader>
-        <CardContent className="flex gap-4">
+        <CardContent className="flex flex-wrap gap-4">
           <Button asChild variant="gradient">
             <Link to="/customer/browse">
               <Search className="mr-2 h-4 w-4" />
               Browse Equipment
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/customer/cart">
+              <ShoppingCart className="mr-2 h-4 w-4" />
+              View Cart ({cartItems.length})
             </Link>
           </Button>
           <Button asChild variant="outline">
