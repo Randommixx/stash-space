@@ -1,92 +1,77 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import {
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-  signOut,
-  User,
-} from 'firebase/auth';
-import { auth } from '@/lib/firebase';
 import { loginSuccess, logout as logoutAction, loginStart, loginFailure } from '@/store/slices/authSlice';
 
-const googleProvider = new GoogleAuthProvider();
+// Mock user type for demo purposes
+interface MockUser {
+  uid: string;
+  email: string;
+  displayName: string;
+}
 
 export const useAuth = () => {
-  const [loading, setLoading] = useState(true);
-  const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
+  const [loading] = useState(false);
+  const [mockUser, setMockUser] = useState<MockUser | null>(null);
   const dispatch = useDispatch();
 
-  // Listen for auth state changes
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setFirebaseUser(user);
-      setLoading(false);
-      
-      if (user) {
-        // Defer Redux dispatch to avoid deadlock
-        setTimeout(() => {
-          dispatch(loginSuccess({
-            id: user.uid,
-            email: user.email || '',
-            name: user.displayName || user.email?.split('@')[0] || 'User',
-            role: 'vendor', // Default role, can be determined by user metadata
-          }));
-        }, 0);
-      } else {
-        dispatch(logoutAction());
-      }
-    });
-
-    return () => unsubscribe();
-  }, [dispatch]);
-
-  const signInWithEmail = async (email: string, password: string) => {
+  // Mock email/password sign in - accepts any credentials
+  const signInWithEmail = async (email: string, _password: string) => {
     dispatch(loginStart());
-    try {
-      const result = await signInWithEmailAndPassword(auth, email, password);
-      return { user: result.user, error: null };
-    } catch (error: any) {
-      dispatch(loginFailure());
-      return { user: null, error: error.message };
-    }
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const user: MockUser = {
+      uid: `mock-${Date.now()}`,
+      email,
+      displayName: email.split('@')[0],
+    };
+    
+    setMockUser(user);
+    return { user, error: null };
   };
 
-  const signUpWithEmail = async (email: string, password: string) => {
+  // Mock sign up - accepts any credentials
+  const signUpWithEmail = async (email: string, _password: string) => {
     dispatch(loginStart());
-    try {
-      const result = await createUserWithEmailAndPassword(auth, email, password);
-      return { user: result.user, error: null };
-    } catch (error: any) {
-      dispatch(loginFailure());
-      return { user: null, error: error.message };
-    }
+    
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const user: MockUser = {
+      uid: `mock-${Date.now()}`,
+      email,
+      displayName: email.split('@')[0],
+    };
+    
+    setMockUser(user);
+    return { user, error: null };
   };
 
+  // Mock Google sign in
   const signInWithGoogle = async () => {
     dispatch(loginStart());
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      return { user: result.user, error: null };
-    } catch (error: any) {
-      dispatch(loginFailure());
-      return { user: null, error: error.message };
-    }
+    
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const user: MockUser = {
+      uid: `mock-google-${Date.now()}`,
+      email: 'demo@gmail.com',
+      displayName: 'Demo User',
+    };
+    
+    setMockUser(user);
+    return { user, error: null };
   };
 
+  // Mock logout
   const logout = async () => {
-    try {
-      await signOut(auth);
-      return { error: null };
-    } catch (error: any) {
-      return { error: error.message };
-    }
+    setMockUser(null);
+    dispatch(logoutAction());
+    return { error: null };
   };
 
   return {
-    user: firebaseUser,
+    user: mockUser,
     loading,
     signInWithEmail,
     signUpWithEmail,
