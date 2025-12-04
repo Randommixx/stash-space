@@ -71,7 +71,7 @@ export const CustomerSidebar: React.FC = () => {
                       className={({ isActive }) => 
                         isActive 
                           ? "bg-primary text-primary-foreground font-bold" 
-                          : "hover:bg-accent/50"
+                          : "text-foreground hover:bg-accent/50"
                       }
                     >
                       <item.icon className="mr-2 h-4 w-4" />
