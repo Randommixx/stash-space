@@ -70,7 +70,7 @@ export const CustomerSidebar: React.FC = () => {
                       to={item.url} 
                       className={({ isActive }) => 
                         isActive 
-                          ? "bg-accent text-accent-foreground font-medium" 
+                          ? "bg-primary text-primary-foreground font-bold" 
                           : "hover:bg-accent/50"
                       }
                     >
