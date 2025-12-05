@@ -7,8 +7,6 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { useDispatch } from 'react-redux';
-import { loginSuccess } from '@/store/slices/authSlice';
 
 export const CustomerLoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -17,14 +15,13 @@ export const CustomerLoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { signInWithEmail, signInWithGoogle } = useAuth();
-  const dispatch = useDispatch();
+  const { signInCustomer } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const { user, error } = await signInWithEmail(email, password);
+    const { error } = await signInCustomer(email, password);
     
     if (error) {
       toast({
@@ -32,14 +29,7 @@ export const CustomerLoginPage: React.FC = () => {
         description: getErrorMessage(error),
         variant: 'destructive',
       });
-    } else if (user) {
-      // Override role to customer for this login page
-      dispatch(loginSuccess({
-        id: user.uid,
-        email: user.email || '',
-        name: user.displayName || user.email?.split('@')[0] || 'User',
-        role: 'customer',
-      }));
+    } else {
       toast({
         title: 'Login successful',
         description: 'Welcome to FilmGear Pro!',
@@ -51,7 +41,7 @@ export const CustomerLoginPage: React.FC = () => {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    const { user, error } = await signInWithGoogle();
+    const { error } = await signInCustomer('demo@gmail.com', 'demo');
     
     if (error) {
       toast({
@@ -59,14 +49,7 @@ export const CustomerLoginPage: React.FC = () => {
         description: getErrorMessage(error),
         variant: 'destructive',
       });
-    } else if (user) {
-      // Override role to customer for this login page
-      dispatch(loginSuccess({
-        id: user.uid,
-        email: user.email || '',
-        name: user.displayName || user.email?.split('@')[0] || 'User',
-        role: 'customer',
-      }));
+    } else {
       toast({
         title: 'Login successful',
         description: 'Welcome to FilmGear Pro!',
