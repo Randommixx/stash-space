@@ -14,7 +14,7 @@ export const useAuth = () => {
   const [mockUser, setMockUser] = useState<MockUser | null>(null);
   const dispatch = useDispatch();
 
-  // Mock email/password sign in - accepts any credentials
+  // Mock email/password sign in for vendor - accepts any credentials
   const signInWithEmail = async (email: string, _password: string) => {
     dispatch(loginStart());
     
@@ -28,10 +28,20 @@ export const useAuth = () => {
     };
     
     setMockUser(user);
+    
+    // Dispatch loginSuccess to update Redux state
+    dispatch(loginSuccess({
+      id: user.uid,
+      email: user.email,
+      name: user.displayName,
+      role: 'vendor',
+      kycStatus: 'approved',
+    }));
+    
     return { user, error: null };
   };
 
-  // Mock sign up - accepts any credentials
+  // Mock sign up for vendor - accepts any credentials
   const signUpWithEmail = async (email: string, _password: string) => {
     dispatch(loginStart());
     
@@ -44,10 +54,20 @@ export const useAuth = () => {
     };
     
     setMockUser(user);
+    
+    // Dispatch loginSuccess to update Redux state
+    dispatch(loginSuccess({
+      id: user.uid,
+      email: user.email,
+      name: user.displayName,
+      role: 'vendor',
+      kycStatus: 'pending',
+    }));
+    
     return { user, error: null };
   };
 
-  // Mock Google sign in
+  // Mock Google sign in for vendor
   const signInWithGoogle = async () => {
     dispatch(loginStart());
     
@@ -60,6 +80,66 @@ export const useAuth = () => {
     };
     
     setMockUser(user);
+    
+    // Dispatch loginSuccess to update Redux state
+    dispatch(loginSuccess({
+      id: user.uid,
+      email: user.email,
+      name: user.displayName,
+      role: 'vendor',
+      kycStatus: 'approved',
+    }));
+    
+    return { user, error: null };
+  };
+
+  // Customer sign in
+  const signInCustomer = async (email: string, _password: string) => {
+    dispatch(loginStart());
+    
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const user: MockUser = {
+      uid: `mock-customer-${Date.now()}`,
+      email,
+      displayName: email.split('@')[0],
+    };
+    
+    setMockUser(user);
+    
+    // Dispatch loginSuccess to update Redux state with customer role
+    dispatch(loginSuccess({
+      id: user.uid,
+      email: user.email,
+      name: user.displayName,
+      role: 'customer',
+    }));
+    
+    return { user, error: null };
+  };
+
+  // Customer sign up
+  const signUpCustomer = async (email: string, _password: string) => {
+    dispatch(loginStart());
+    
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const user: MockUser = {
+      uid: `mock-customer-${Date.now()}`,
+      email,
+      displayName: email.split('@')[0],
+    };
+    
+    setMockUser(user);
+    
+    // Dispatch loginSuccess to update Redux state with customer role
+    dispatch(loginSuccess({
+      id: user.uid,
+      email: user.email,
+      name: user.displayName,
+      role: 'customer',
+    }));
+    
     return { user, error: null };
   };
 
@@ -76,6 +156,8 @@ export const useAuth = () => {
     signInWithEmail,
     signUpWithEmail,
     signInWithGoogle,
+    signInCustomer,
+    signUpCustomer,
     logout,
   };
 };
