@@ -6,6 +6,8 @@ import photoVerificationSlice from './slices/photoVerificationSlice';
 import servicePersonnelSlice from './slices/servicePersonnelSlice';
 import cartSlice from './slices/cartSlice';
 import favoritesSlice from './slices/favoritesSlice';
+import cameraDepartmentSlice from './slices/cameraDepartmentSlice';
+import transportLogisticsSlice from './slices/transportLogisticsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +18,8 @@ export const store = configureStore({
     servicePersonnel: servicePersonnelSlice,
     cart: cartSlice,
     favorites: favoritesSlice,
+    cameraDepartment: cameraDepartmentSlice,
+    transportLogistics: transportLogisticsSlice,
   },
 });
 
