@@ -51,7 +51,7 @@ export default function ExpendablesPage() {
     dispatch(updateExpendableCount({
       id,
       delta,
-      userId: user?.uid || 'anonymous',
+      userId: user?.id || 'anonymous',
     }));
     
     const item = expendables.find(e => e.id === id);
@@ -71,7 +71,7 @@ export default function ExpendablesPage() {
     
     dispatch(addExpendable({
       ...newItem,
-      updatedBy: user?.uid || 'anonymous',
+      updatedBy: user?.id || 'anonymous',
     }));
     
     setAddDialogOpen(false);

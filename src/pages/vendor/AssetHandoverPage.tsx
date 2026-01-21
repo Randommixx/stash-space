@@ -106,7 +106,7 @@ export default function AssetHandoverPage() {
   };
   
   const handleConfirm = () => {
-    dispatch(confirmHandover({ userId: user?.uid || 'anonymous' }));
+    dispatch(confirmHandover({ userId: user?.id || 'anonymous' }));
     toast.success('Handover confirmed and saved');
   };
   

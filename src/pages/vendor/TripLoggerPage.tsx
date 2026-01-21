@@ -102,8 +102,8 @@ export default function TripLoggerPage() {
       dispatch(startTrip({
         vehicleId: selectedVehicle,
         vehicleName: vehicle?.name || 'Unknown Vehicle',
-        driverId: user?.uid || 'anonymous',
-        driverName: user?.displayName || user?.email || 'Unknown Driver',
+        driverId: user?.id || 'anonymous',
+        driverName: user?.name || user?.email || 'Unknown Driver',
         location: {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
