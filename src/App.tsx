@@ -30,6 +30,13 @@ import { VendorProfilePage } from './pages/vendor/VendorProfilePage';
 import { VendorSettingsPage } from './pages/vendor/VendorSettingsPage';
 import ServicePersonnelPage from './pages/vendor/ServicePersonnelPage';
 import PhotoVerificationPage from './pages/vendor/PhotoVerificationPage';
+import AssetHandoverPage from './pages/vendor/AssetHandoverPage';
+import RFQPage from './pages/vendor/RFQPage';
+import CameraReportsPage from './pages/vendor/CameraReportsPage';
+import ExpendablesPage from './pages/vendor/ExpendablesPage';
+import TripLoggerPage from './pages/vendor/TripLoggerPage';
+import FuelEntryPage from './pages/vendor/FuelEntryPage';
+import GeofencePage from './pages/vendor/GeofencePage';
 import { LandingPage } from './pages/LandingPage';
 import NotFound from "./pages/NotFound";
 
@@ -66,6 +73,15 @@ const App = () => (
               <Route path="/analytics" element={<VendorAnalyticsPage />} />
               <Route path="/service-personnel" element={<ServicePersonnelPage />} />
               <Route path="/photo-verification" element={<PhotoVerificationPage />} />
+              {/* Module A - Camera Department */}
+              <Route path="/asset-handover" element={<AssetHandoverPage />} />
+              <Route path="/rfq" element={<RFQPage />} />
+              <Route path="/camera-reports" element={<CameraReportsPage />} />
+              <Route path="/expendables" element={<ExpendablesPage />} />
+              {/* Module B - Transport & Logistics */}
+              <Route path="/trip-logger" element={<TripLoggerPage />} />
+              <Route path="/fuel-entry" element={<FuelEntryPage />} />
+              <Route path="/geofence" element={<GeofencePage />} />
               <Route path="/profile" element={<VendorProfilePage />} />
               <Route path="/settings" element={<VendorSettingsPage />} />
             </Route>

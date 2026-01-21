@@ -10,6 +10,13 @@ import {
   Film,
   Users,
   Shield,
+  Package,
+  FileText,
+  Clapperboard,
+  Box,
+  MapPin,
+  Fuel,
+  Navigation,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -49,6 +56,50 @@ const menuItems = [
     url: '/analytics',
     icon: BarChart3,
   },
+];
+
+const cameraDeptItems = [
+  {
+    title: 'Asset Handover',
+    url: '/asset-handover',
+    icon: Package,
+  },
+  {
+    title: 'RFQ Management',
+    url: '/rfq',
+    icon: FileText,
+  },
+  {
+    title: 'Camera Reports',
+    url: '/camera-reports',
+    icon: Clapperboard,
+  },
+  {
+    title: 'Expendables',
+    url: '/expendables',
+    icon: Box,
+  },
+];
+
+const transportItems = [
+  {
+    title: 'Trip Logger',
+    url: '/trip-logger',
+    icon: Navigation,
+  },
+  {
+    title: 'Fuel Entry',
+    url: '/fuel-entry',
+    icon: Fuel,
+  },
+  {
+    title: 'Geofence',
+    url: '/geofence',
+    icon: MapPin,
+  },
+];
+
+const operationsItems = [
   {
     title: 'Service Personnel',
     url: '/service-personnel',
@@ -133,8 +184,80 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Camera Department */}
+        <SidebarGroup className="mt-6">
+          <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
+            Camera Dept
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              {cameraDeptItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={item.url}
+                      className={getLinkClasses(item.url)}
+                    >
+                      <item.icon className="w-5 h-5" />
+                      {!collapsed && <span className="ml-3">{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Transport & Logistics */}
+        <SidebarGroup className="mt-6">
+          <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
+            Transport
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              {transportItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={item.url}
+                      className={getLinkClasses(item.url)}
+                    >
+                      <item.icon className="w-5 h-5" />
+                      {!collapsed && <span className="ml-3">{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Operations */}
+        <SidebarGroup className="mt-6">
+          <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
+            Operations
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              {operationsItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={item.url}
+                      className={getLinkClasses(item.url)}
+                    >
+                      <item.icon className="w-5 h-5" />
+                      {!collapsed && <span className="ml-3">{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
         {/* Settings Navigation */}
-        <SidebarGroup className="mt-8">
+        <SidebarGroup className="mt-6">
           <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
             Settings
           </SidebarGroupLabel>
