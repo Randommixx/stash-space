@@ -94,8 +94,8 @@ export default function RFQPage() {
     }
     
     dispatch(submitRFQ({
-      customerId: user?.uid || 'anonymous',
-      customerName: user?.displayName || user?.email || 'Guest User',
+      customerId: user?.id || 'anonymous',
+      customerName: user?.name || user?.email || 'Guest User',
       startDate,
       endDate,
     }));

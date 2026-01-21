@@ -67,7 +67,7 @@ export default function FuelEntryPage() {
       cost: parseFloat(cost),
       volume: parseFloat(volume),
       pumpPhoto,
-      userId: user?.uid || 'anonymous',
+      userId: user?.id || 'anonymous',
     }));
     
     toast.success('Fuel entry recorded');

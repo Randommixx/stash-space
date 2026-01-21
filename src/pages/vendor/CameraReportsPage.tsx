@@ -76,7 +76,7 @@ export default function CameraReportsPage() {
       shutterAngle: parseFloat(shutterAngle),
       reelId,
       notes,
-      createdBy: user?.uid || 'anonymous',
+      createdBy: user?.id || 'anonymous',
     }));
     
     toast.success('Camera report saved');
