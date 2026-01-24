@@ -4,7 +4,7 @@ interface User {
   id: string;
   email: string;
   name: string;
-  role: 'vendor' | 'customer' | 'admin';
+  role: 'vendor' | 'customer' | 'admin' | 'driver' | 'camera_crew';
   kycStatus?: 'pending' | 'approved' | 'rejected' | 'not_submitted';
 }
 

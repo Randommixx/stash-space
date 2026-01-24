@@ -143,6 +143,26 @@ export const useAuth = () => {
     return { user, error: null };
   };
 
+  // Driver sign in
+  const signInDriver = async (email: string, _password: string) => {
+    dispatch(loginStart());
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const user: MockUser = { uid: `mock-driver-${Date.now()}`, email, displayName: email.split('@')[0] };
+    setMockUser(user);
+    dispatch(loginSuccess({ id: user.uid, email: user.email, name: user.displayName, role: 'driver' }));
+    return { user, error: null };
+  };
+
+  // Camera crew sign in
+  const signInCrew = async (email: string, _password: string) => {
+    dispatch(loginStart());
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const user: MockUser = { uid: `mock-crew-${Date.now()}`, email, displayName: email.split('@')[0] };
+    setMockUser(user);
+    dispatch(loginSuccess({ id: user.uid, email: user.email, name: user.displayName, role: 'camera_crew' }));
+    return { user, error: null };
+  };
+
   // Mock logout
   const logout = async () => {
     setMockUser(null);
@@ -158,6 +178,8 @@ export const useAuth = () => {
     signInWithGoogle,
     signInCustomer,
     signUpCustomer,
+    signInDriver,
+    signInCrew,
     logout,
   };
 };
