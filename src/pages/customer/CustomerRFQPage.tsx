@@ -34,7 +34,7 @@ const CustomerRFQPage = () => {
   const rejectedRfqs = customerRfqs.filter(r => r.status === 'rejected');
 
   const handleAccept = (rfqId: string) => {
-    dispatch(updateRFQStatus({ id: rfqId, status: 'accepted' }));
+    dispatch(updateRFQStatus({ rfqId, status: 'accepted' }));
     
     // Haptic feedback
     if (navigator.vibrate) {
@@ -45,7 +45,7 @@ const CustomerRFQPage = () => {
   };
 
   const handleReject = (rfqId: string) => {
-    dispatch(updateRFQStatus({ id: rfqId, status: 'rejected' }));
+    dispatch(updateRFQStatus({ rfqId, status: 'rejected' }));
     toast.info('Quote rejected.');
   };
 
@@ -72,7 +72,7 @@ const CustomerRFQPage = () => {
             <CardTitle className="text-lg">{rfq.id}</CardTitle>
             <CardDescription className="flex items-center gap-2 mt-1">
               <Calendar className="h-4 w-4" />
-              {format(new Date(rfq.rentalStart), 'MMM d')} - {format(new Date(rfq.rentalEnd), 'MMM d, yyyy')}
+              {format(new Date(rfq.rentalStartDate), 'MMM d')} - {format(new Date(rfq.rentalEndDate), 'MMM d, yyyy')}
             </CardDescription>
           </div>
           {getStatusBadge(rfq.status)}
@@ -88,7 +88,7 @@ const CustomerRFQPage = () => {
           <div className="bg-muted/50 rounded-lg p-3 space-y-1">
             {rfq.items.slice(0, 3).map((item, idx) => (
               <div key={idx} className="flex justify-between text-sm">
-                <span>{item.name}</span>
+                <span>{item.equipmentName}</span>
                 <span className="text-muted-foreground">x{item.quantity}</span>
               </div>
             ))}
@@ -101,12 +101,12 @@ const CustomerRFQPage = () => {
         </div>
 
         {/* Quote Details */}
-        {rfq.status === 'quoted' && rfq.quotedPrice && (
+        {rfq.status === 'quoted' && rfq.totalCost && (
           <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
               <p className="font-medium">Quoted Price</p>
               <p className="text-xl font-bold text-amber-600 dark:text-amber-400">
-                ₹{rfq.quotedPrice.toLocaleString()}
+                ₹{rfq.totalCost.toLocaleString()}
               </p>
             </div>
             {rfq.vendorNotes && (
@@ -116,14 +116,14 @@ const CustomerRFQPage = () => {
         )}
 
         {/* Accepted Quote */}
-        {rfq.status === 'accepted' && rfq.quotedPrice && (
+        {rfq.status === 'accepted' && rfq.totalCost && (
           <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle2 className="h-5 w-5 text-green-600" />
               <p className="font-medium">Booking Confirmed</p>
             </div>
             <p className="text-xl font-bold text-green-600 dark:text-green-400">
-              ₹{rfq.quotedPrice.toLocaleString()}
+              ₹{rfq.totalCost.toLocaleString()}
             </p>
           </div>
         )}
