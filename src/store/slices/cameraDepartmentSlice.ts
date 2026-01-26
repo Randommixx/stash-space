@@ -80,7 +80,18 @@ export interface Expendable {
   updatedBy: string;
 }
 
-interface CameraDepartmentState {
+// Scenes Master Types
+export interface SceneMaster {
+  id: string;
+  projectName: string;
+  sceneNumber: string;
+  shotNumber: string;
+  takeNumber: string;
+  description?: string;
+  createdAt: string;
+}
+
+export interface CameraDepartmentState {
   // Asset Handover
   handovers: AssetHandover[];
   activeHandover: AssetHandover | null;
@@ -91,6 +102,9 @@ interface CameraDepartmentState {
   
   // Camera Reports
   cameraReports: CameraReport[];
+  
+  // Scenes Master
+  scenesMaster: SceneMaster[];
   
   // Expendables
   expendables: Expendable[];
@@ -187,6 +201,7 @@ const initialState: CameraDepartmentState = {
   ],
   rfqCart: [],
   cameraReports: [],
+  scenesMaster: [],
   expendables: initialExpendables,
   lowStockAlerts: initialExpendables
     .filter(e => e.currentCount < e.minimumThreshold)
@@ -367,6 +382,15 @@ const cameraDepartmentSlice = createSlice({
       state.lowStockAlerts = state.lowStockAlerts.filter(id => id !== action.payload);
     },
     
+    // Scenes Master Actions
+    importScenesMaster: (state, action: PayloadAction<SceneMaster[]>) => {
+      state.scenesMaster = [...state.scenesMaster, ...action.payload];
+    },
+    
+    clearScenesMaster: (state) => {
+      state.scenesMaster = [];
+    },
+    
     // Sync Actions
     syncOfflineQueue: (state) => {
       // Simulate sync - in real app would call API
@@ -399,6 +423,8 @@ export const {
   updateExpendableCount,
   addExpendable,
   dismissLowStockAlert,
+  importScenesMaster,
+  clearScenesMaster,
   syncOfflineQueue,
   setLoading,
 } = cameraDepartmentSlice.actions;
