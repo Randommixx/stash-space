@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   Plus, 
   Search, 
@@ -12,13 +12,18 @@ import {
   AlertCircle,
   Camera,
   Lightbulb,
-  Mic
+  Mic,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 import {
   Table,
   TableBody,
@@ -34,6 +39,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { RootState } from '@/store/store';
 import { setSearchTerm, setCategoryFilter, deleteEquipment, Equipment } from '@/store/slices/inventorySlice';
 import { toast } from 'sonner';
@@ -198,9 +213,18 @@ const videoCategories = [
 
 export const InventoryPage: React.FC = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { searchTerm, categoryFilter } = useSelector((state: RootState) => state.inventory);
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [equipmentToDelete, setEquipmentToDelete] = useState<string | null>(null);
+  
+  // More Filters state
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [conditionFilters, setConditionFilters] = useState<string[]>([]);
+  const [availabilityFilters, setAvailabilityFilters] = useState<string[]>([]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
 
   const getAvailabilityBadge = (availability: string) => {
     switch (availability) {
@@ -221,15 +245,49 @@ export const InventoryPage: React.FC = () => {
   };
 
   const handleEdit = (equipment: Equipment) => {
-    toast.info('Edit functionality coming soon', {
-      description: 'Equipment editing will be available in the next update'
-    });
+    navigate(`/inventory/edit/${equipment.id}`);
   };
 
-  const handleDelete = (equipmentId: string) => {
-    dispatch(deleteEquipment(equipmentId));
-    toast.success('Equipment removed from inventory');
+  const handleDeleteClick = (equipmentId: string) => {
+    setEquipmentToDelete(equipmentId);
+    setDeleteDialogOpen(true);
   };
+
+  const confirmDelete = () => {
+    if (equipmentToDelete) {
+      dispatch(deleteEquipment(equipmentToDelete));
+      toast.success('Equipment removed from inventory');
+      setEquipmentToDelete(null);
+    }
+    setDeleteDialogOpen(false);
+  };
+
+  const toggleConditionFilter = (condition: string) => {
+    setConditionFilters(prev => 
+      prev.includes(condition) 
+        ? prev.filter(c => c !== condition)
+        : [...prev, condition]
+    );
+  };
+
+  const toggleAvailabilityFilter = (availability: string) => {
+    setAvailabilityFilters(prev => 
+      prev.includes(availability) 
+        ? prev.filter(a => a !== availability)
+        : [...prev, availability]
+    );
+  };
+
+  const clearAllFilters = () => {
+    setConditionFilters([]);
+    setAvailabilityFilters([]);
+    setPriceRange([0, 5000]);
+    dispatch(setCategoryFilter('all'));
+    dispatch(setSearchTerm(''));
+  };
+
+  const activeFilterCount = conditionFilters.length + availabilityFilters.length + 
+    (priceRange[0] > 0 || priceRange[1] < 5000 ? 1 : 0);
 
   const filteredEquipment = mockEquipment.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -238,7 +296,10 @@ export const InventoryPage: React.FC = () => {
                          item.subcategory.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || categoryFilter === 'All Categories' || 
                            item.category === categoryFilter.toLowerCase();
-    return matchesSearch && matchesCategory;
+    const matchesCondition = conditionFilters.length === 0 || conditionFilters.includes(item.condition);
+    const matchesAvailability = availabilityFilters.length === 0 || availabilityFilters.includes(item.availability);
+    const matchesPrice = item.dailyRate >= priceRange[0] && item.dailyRate <= priceRange[1];
+    return matchesSearch && matchesCategory && matchesCondition && matchesAvailability && matchesPrice;
   });
 
   return (
@@ -345,10 +406,99 @@ export const InventoryPage: React.FC = () => {
                 ))}
               </SelectContent>
             </Select>
-            <Button variant="outline">
-              <Filter className="w-4 h-4 mr-2" />
-              More Filters
-            </Button>
+            <Popover open={filtersOpen} onOpenChange={setFiltersOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="relative">
+                  <Filter className="w-4 h-4 mr-2" />
+                  More Filters
+                  {activeFilterCount > 0 && (
+                    <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                      {activeFilterCount}
+                    </Badge>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80" align="end">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold">Filters</h4>
+                    <Button variant="ghost" size="sm" onClick={clearAllFilters}>
+                      <X className="w-4 h-4 mr-1" />
+                      Clear All
+                    </Button>
+                  </div>
+                  
+                  {/* Condition Filter */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Condition</Label>
+                    <div className="space-y-2">
+                      {['excellent', 'good', 'fair'].map((condition) => (
+                        <div key={condition} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`condition-${condition}`}
+                            checked={conditionFilters.includes(condition)}
+                            onCheckedChange={() => toggleConditionFilter(condition)}
+                          />
+                          <Label htmlFor={`condition-${condition}`} className="capitalize text-sm">
+                            {condition}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Availability Filter */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Availability</Label>
+                    <div className="space-y-2">
+                      {[
+                        { value: 'available', label: 'Available' },
+                        { value: 'rented', label: 'On Rental' },
+                        { value: 'maintenance', label: 'Maintenance' }
+                      ].map((item) => (
+                        <div key={item.value} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`availability-${item.value}`}
+                            checked={availabilityFilters.includes(item.value)}
+                            onCheckedChange={() => toggleAvailabilityFilter(item.value)}
+                          />
+                          <Label htmlFor={`availability-${item.value}`} className="text-sm">
+                            {item.label}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Price Range Filter */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Daily Rate Range</Label>
+                    <div className="px-2">
+                      <Slider
+                        value={priceRange}
+                        onValueChange={(value) => setPriceRange(value as [number, number])}
+                        max={5000}
+                        min={0}
+                        step={100}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between mt-2 text-sm text-muted-foreground">
+                        <span>₹{priceRange[0]}</span>
+                        <span>₹{priceRange[1]}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    variant="gradient" 
+                    className="w-full" 
+                    onClick={() => setFiltersOpen(false)}
+                  >
+                    Apply Filters
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </CardContent>
       </Card>
@@ -431,7 +581,7 @@ export const InventoryPage: React.FC = () => {
                         variant="ghost" 
                         size="icon" 
                         className="text-destructive hover:text-destructive"
-                        onClick={() => handleDelete(equipment.id)}
+                        onClick={() => handleDeleteClick(equipment.id)}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -524,6 +674,30 @@ export const InventoryPage: React.FC = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Equipment</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this equipment from your inventory? 
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setEquipmentToDelete(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
