@@ -16,6 +16,7 @@ import { VendorSignupPage } from './pages/auth/VendorSignupPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { InventoryPage } from './pages/InventoryPage';
 import { AddFilmGearPage } from './pages/AddFilmGearPage';
+import { EditFilmGearPage } from './pages/EditFilmGearPage';
 import { CustomerDashboard } from './pages/customer/CustomerDashboard';
 import { BrowseEquipment } from './pages/customer/BrowseEquipment';
 import { MyBookings } from './pages/customer/MyBookings';
@@ -68,6 +69,7 @@ const App = () => (
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/inventory" element={<InventoryPage />} />
               <Route path="/inventory/add" element={<AddFilmGearPage />} />
+              <Route path="/inventory/edit/:id" element={<EditFilmGearPage />} />
               <Route path="/bookings" element={<VendorBookingsPage />} />
               <Route path="/orders" element={<ActiveRentalsPage />} />
               <Route path="/analytics" element={<VendorAnalyticsPage />} />
