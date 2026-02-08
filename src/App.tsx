@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { store } from './store/store';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { VendorProtectedRoute } from './components/auth/VendorProtectedRoute';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import { CustomerLayout } from './components/layout/CustomerLayout';
 import { LoginPage } from './pages/auth/LoginPage';
@@ -38,6 +39,10 @@ import ExpendablesPage from './pages/vendor/ExpendablesPage';
 import TripLoggerPage from './pages/vendor/TripLoggerPage';
 import FuelEntryPage from './pages/vendor/FuelEntryPage';
 import GeofencePage from './pages/vendor/GeofencePage';
+import ScenesImportPage from './pages/vendor/ScenesImportPage';
+import CameraModulePage from './pages/vendor/modules/CameraModulePage';
+import TransportModulePage from './pages/vendor/modules/TransportModulePage';
+import CustomerRFQPage from './pages/customer/CustomerRFQPage';
 import { LandingPage } from './pages/LandingPage';
 import NotFound from "./pages/NotFound";
 
@@ -64,6 +69,28 @@ const App = () => (
             <Route path="/customer/register" element={<CustomerSignupPage />} />
             <Route path="/customer/signup" element={<CustomerSignupPage />} />
 
+            {/* Vendor Module Routes with vendorId validation */}
+            <Route 
+              path="/vendor/:vendorId/camera" 
+              element={
+                <VendorProtectedRoute validateVendorId>
+                  <DashboardLayout />
+                </VendorProtectedRoute>
+              }
+            >
+              <Route index element={<CameraModulePage />} />
+            </Route>
+            <Route 
+              path="/vendor/:vendorId/transport" 
+              element={
+                <VendorProtectedRoute validateVendorId>
+                  <DashboardLayout />
+                </VendorProtectedRoute>
+              }
+            >
+              <Route index element={<TransportModulePage />} />
+            </Route>
+
             {/* Vendor Protected Routes */}
             <Route element={<ProtectedRoute requiredRole="vendor"><DashboardLayout /></ProtectedRoute>}>
               <Route path="/dashboard" element={<DashboardPage />} />
@@ -80,6 +107,7 @@ const App = () => (
               <Route path="/rfq" element={<RFQPage />} />
               <Route path="/camera-reports" element={<CameraReportsPage />} />
               <Route path="/expendables" element={<ExpendablesPage />} />
+              <Route path="/scenes-import" element={<ScenesImportPage />} />
               {/* Module B - Transport & Logistics */}
               <Route path="/trip-logger" element={<TripLoggerPage />} />
               <Route path="/fuel-entry" element={<FuelEntryPage />} />
@@ -96,6 +124,7 @@ const App = () => (
               <Route path="/customer/bookings" element={<MyBookings />} />
               <Route path="/customer/favorites" element={<Favorites />} />
               <Route path="/customer/profile" element={<CustomerProfile />} />
+              <Route path="/customer/rfq" element={<CustomerRFQPage />} />
             </Route>
 
             {/* Catch-all route */}
