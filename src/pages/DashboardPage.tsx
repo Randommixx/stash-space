@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { 
   Camera, 
   Calendar, 
@@ -11,7 +12,9 @@ import {
   Users,
   Film,
   Mic,
-  Lightbulb
+  Lightbulb,
+  Truck,
+  ChevronRight
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -100,6 +103,7 @@ const alerts = [
 export const DashboardPage: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const { bookings } = useSelector((state: RootState) => state.bookings);
+  const navigate = useNavigate();
 
   // Calculate active rentals (confirmed or pending status)
   const activeRentalsCount = bookings.filter(
@@ -130,6 +134,32 @@ export const DashboardPage: React.FC = () => {
     }
   };
 
+  // Module navigation with vendor-specific routes
+  const modules = [
+    {
+      id: 'camera',
+      title: 'Camera Department',
+      description: 'Asset handovers, RFQs, camera reports, and expendables',
+      icon: Camera,
+      color: 'text-blue-500',
+      bgColor: 'bg-blue-500/10',
+    },
+    {
+      id: 'transport',
+      title: 'Transport & Logistics',
+      description: 'Trip logging, fuel entries, and geofence monitoring',
+      icon: Truck,
+      color: 'text-green-500',
+      bgColor: 'bg-green-500/10',
+    },
+  ];
+
+  const handleModuleClick = (moduleId: string) => {
+    if (user?.id) {
+      navigate(`/vendor/${user.id}/${moduleId}`);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -140,6 +170,34 @@ export const DashboardPage: React.FC = () => {
         <p className="text-muted-foreground">
           Here's what's happening with your video production equipment rental business today.
         </p>
+      </div>
+
+      {/* Module Navigation Cards */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {modules.map((module) => (
+          <Card 
+            key={module.id}
+            className="shadow-soft hover:shadow-md transition-all cursor-pointer group border-2 hover:border-primary/50"
+            onClick={() => handleModuleClick(module.id)}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <div className="flex items-center gap-4">
+                <div className={`p-3 rounded-lg ${module.bgColor}`}>
+                  <module.icon className={`h-6 w-6 ${module.color}`} />
+                </div>
+                <div>
+                  <CardTitle className="text-xl group-hover:text-primary transition-colors">
+                    {module.title}
+                  </CardTitle>
+                  <CardDescription className="mt-1">
+                    {module.description}
+                  </CardDescription>
+                </div>
+              </div>
+              <ChevronRight className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
+            </CardHeader>
+          </Card>
+        ))}
       </div>
 
       {/* Stats Grid */}
@@ -244,15 +302,15 @@ export const DashboardPage: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="grid gap-3 md:grid-cols-3">
-            <Button variant="gradient" className="h-12">
+            <Button variant="gradient" className="h-12" onClick={() => navigate('/inventory/add')}>
               <Camera className="w-4 h-4 mr-2" />
               Add Film Gear
             </Button>
-            <Button variant="outline" className="h-12">
+            <Button variant="outline" className="h-12" onClick={() => navigate('/service-personnel')}>
               <Users className="w-4 h-4 mr-2" />
               Manage Clients
             </Button>
-            <Button variant="outline" className="h-12">
+            <Button variant="outline" className="h-12" onClick={() => navigate('/analytics')}>
               <TrendingUp className="w-4 h-4 mr-2" />
               Rental Reports
             </Button>
