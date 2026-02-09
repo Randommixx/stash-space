@@ -26,8 +26,8 @@ export const VendorProtectedRoute: React.FC<VendorProtectedRouteProps> = ({
     return <Navigate to="/vendor/login" replace />;
   }
 
-  // Check role
-  if (user.role !== 'vendor') {
+  // Check role - allow vendor and producer (both have full access)
+  if (user.role !== 'vendor' && user.role !== 'producer' && user.role !== 'admin') {
     // Redirect based on user role
     if (user.role === 'customer') {
       return <Navigate to="/customer/dashboard" replace />;
