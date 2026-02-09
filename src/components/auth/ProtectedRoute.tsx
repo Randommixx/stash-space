@@ -5,7 +5,7 @@ import { RootState } from '@/store/store';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: 'vendor' | 'customer' | 'admin';
+  requiredRole?: 'vendor' | 'customer' | 'admin' | 'driver' | 'camera_crew' | 'producer';
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
@@ -17,12 +17,17 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
 
   if (requiredRole && user?.role !== requiredRole) {
     // Redirect based on user role
-    if (user?.role === 'vendor') {
-      return <Navigate to="/dashboard" replace />;
-    } else if (user?.role === 'customer') {
-      return <Navigate to="/customer/dashboard" replace />;
-    }
-    return <Navigate to="/" replace />;
+    const roleRedirects: Record<string, string> = {
+      vendor: '/dashboard',
+      producer: '/dashboard',
+      customer: '/customer/dashboard',
+      driver: '/driver/dashboard',
+      camera_crew: '/crew/dashboard',
+      admin: '/dashboard',
+    };
+    
+    const redirect = roleRedirects[user?.role || ''] || '/';
+    return <Navigate to={redirect} replace />;
   }
 
   return <>{children}</>;

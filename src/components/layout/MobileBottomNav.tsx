@@ -57,6 +57,7 @@ export function MobileBottomNav() {
       case 'customer':
         return customerNavItems;
       case 'vendor':
+      case 'producer':
       case 'admin':
       default:
         return vendorNavItems;

@@ -1,5 +1,7 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
 import {
   LayoutDashboard,
   Camera,
@@ -128,7 +130,16 @@ const settingsItems = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();
+  const { user } = useSelector((state: RootState) => state.auth);
   const collapsed = state === 'collapsed';
+
+  const userRole = user?.role;
+
+  // Determine module access based on role
+  const canAccessCamera = ['producer', 'vendor', 'admin', 'camera_crew'].includes(userRole || '');
+  const canAccessTransport = ['producer', 'vendor', 'admin', 'driver'].includes(userRole || '');
+  const canAccessOperations = ['producer', 'vendor', 'admin'].includes(userRole || '');
+  const canAccessMain = ['producer', 'vendor', 'admin'].includes(userRole || '');
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -149,112 +160,120 @@ export function AppSidebar() {
           {!collapsed ? (
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <Film className="w-4 h-4 text-white" />
+                <Film className="w-4 h-4 text-primary-foreground" />
               </div>
               <span className="font-bold text-lg text-foreground">FilmGear Pro</span>
             </div>
           ) : (
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center mx-auto">
-              <Film className="w-4 h-4 text-white" />
+              <Film className="w-4 h-4 text-primary-foreground" />
             </div>
           )}
         </div>
 
-        {/* Main Navigation */}
-        <SidebarGroup>
-          <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
-            Main
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      className={getLinkClasses(item.url)}
-                    >
-                      <item.icon className="w-5 h-5" />
-                      {!collapsed && <span className="ml-3">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* Main Navigation - Only for producers, vendors, and admins */}
+        {canAccessMain && (
+          <SidebarGroup>
+            <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
+              Main
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu className="space-y-1">
+                {menuItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to={item.url}
+                        className={getLinkClasses(item.url)}
+                      >
+                        <item.icon className="w-5 h-5" />
+                        {!collapsed && <span className="ml-3">{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
-        {/* Camera Department */}
-        <SidebarGroup className="mt-6">
-          <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
-            Camera Dept
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
-              {cameraDeptItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      className={getLinkClasses(item.url)}
-                    >
-                      <item.icon className="w-5 h-5" />
-                      {!collapsed && <span className="ml-3">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* Camera Department - For producers, vendors, admins, and camera_crew */}
+        {canAccessCamera && (
+          <SidebarGroup className="mt-6">
+            <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
+              Camera Dept
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu className="space-y-1">
+                {cameraDeptItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to={item.url}
+                        className={getLinkClasses(item.url)}
+                      >
+                        <item.icon className="w-5 h-5" />
+                        {!collapsed && <span className="ml-3">{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
-        {/* Transport & Logistics */}
-        <SidebarGroup className="mt-6">
-          <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
-            Transport
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
-              {transportItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      className={getLinkClasses(item.url)}
-                    >
-                      <item.icon className="w-5 h-5" />
-                      {!collapsed && <span className="ml-3">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* Transport & Logistics - For producers, vendors, admins, and drivers */}
+        {canAccessTransport && (
+          <SidebarGroup className="mt-6">
+            <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
+              Transport
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu className="space-y-1">
+                {transportItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to={item.url}
+                        className={getLinkClasses(item.url)}
+                      >
+                        <item.icon className="w-5 h-5" />
+                        {!collapsed && <span className="ml-3">{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
-        {/* Operations */}
-        <SidebarGroup className="mt-6">
-          <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
-            Operations
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
-              {operationsItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      className={getLinkClasses(item.url)}
-                    >
-                      <item.icon className="w-5 h-5" />
-                      {!collapsed && <span className="ml-3">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* Operations - Only for producers, vendors, and admins */}
+        {canAccessOperations && (
+          <SidebarGroup className="mt-6">
+            <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
+              Operations
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu className="space-y-1">
+                {operationsItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to={item.url}
+                        className={getLinkClasses(item.url)}
+                      >
+                        <item.icon className="w-5 h-5" />
+                        {!collapsed && <span className="ml-3">{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         {/* Settings Navigation */}
         <SidebarGroup className="mt-6">

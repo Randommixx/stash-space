@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useNavigate, Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { loginStart, loginSuccess } from '@/store/slices/authSlice';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Truck, Eye, EyeOff } from 'lucide-react';
+import { Truck, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
-const DriverLoginPage = () => {
+const DriverLoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { signInDriver } = useAuth();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,18 +26,28 @@ const DriverLoginPage = () => {
     }
 
     setIsLoading(true);
+    dispatch(loginStart());
+    
     try {
-      const { error } = await signInDriver(email, password);
-      if (error) {
-        toast.error('Login failed. Please try again.');
-      } else {
-        // Haptic feedback on success
-        if (navigator.vibrate) {
-          navigator.vibrate(100);
-        }
-        toast.success('Welcome back, Driver!');
-        navigate('/driver/trips');
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Mock user creation with driver role
+      const user = {
+        id: `mock-driver-${Date.now()}`,
+        email,
+        name: email.split('@')[0],
+        role: 'driver' as const,
+      };
+      
+      dispatch(loginSuccess(user));
+      
+      if (navigator.vibrate) {
+        navigator.vibrate(100);
       }
+      
+      toast.success('Welcome back, Driver!');
+      navigate('/driver/dashboard');
     } catch (err) {
       toast.error('An unexpected error occurred');
     } finally {
@@ -48,20 +59,24 @@ const DriverLoginPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-4 text-center">
+          <Link to="/vendor/login" className="inline-flex items-center text-muted-foreground hover:text-foreground text-sm">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to role selection
+          </Link>
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary">
-            <Truck className="h-8 w-8 text-primary-foreground" />
+            <Truck className="h-8 w-8 text-white" />
           </div>
           <div>
             <CardTitle className="text-2xl font-bold">Driver Login</CardTitle>
             <CardDescription>
-              Access your trip logger and fuel entries
+              Access trip logs, fuel entries & geofence
             </CardDescription>
           </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email or Phone</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"

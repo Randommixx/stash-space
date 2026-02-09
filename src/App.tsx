@@ -8,12 +8,17 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { store } from './store/store';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { VendorProtectedRoute } from './components/auth/VendorProtectedRoute';
+import { RoleProtectedRoute, ModuleProtectedRoute } from './components/auth/RoleProtectedRoute';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import { CustomerLayout } from './components/layout/CustomerLayout';
 import { LoginPage } from './pages/auth/LoginPage';
 import { CustomerLoginPage } from './pages/auth/CustomerLoginPage';
 import { CustomerSignupPage } from './pages/auth/CustomerSignupPage';
 import { VendorSignupPage } from './pages/auth/VendorSignupPage';
+import VendorRoleSelectionPage from './pages/auth/VendorRoleSelectionPage';
+import ProducerLoginPage from './pages/auth/ProducerLoginPage';
+import CameraManLoginPage from './pages/auth/CameraManLoginPage';
+import DriverLoginPage from './pages/auth/DriverLoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { InventoryPage } from './pages/InventoryPage';
 import { AddFilmGearPage } from './pages/AddFilmGearPage';
@@ -46,6 +51,10 @@ import CustomerRFQPage from './pages/customer/CustomerRFQPage';
 import { LandingPage } from './pages/LandingPage';
 import NotFound from "./pages/NotFound";
 
+// Driver & Crew Dashboards
+import DriverDashboard from './pages/driver/DriverDashboard';
+import CrewDashboard from './pages/crew/CrewDashboard';
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -60,7 +69,10 @@ const App = () => (
             <Route path="/" element={<LandingPage />} />
 
             {/* Vendor Auth Routes */}
-            <Route path="/vendor/login" element={<LoginPage />} />
+            <Route path="/vendor/login" element={<VendorRoleSelectionPage />} />
+            <Route path="/vendor/driver/login" element={<DriverLoginPage />} />
+            <Route path="/vendor/cameraman/login" element={<CameraManLoginPage />} />
+            <Route path="/vendor/producer/login" element={<ProducerLoginPage />} />
             <Route path="/vendor/register" element={<VendorSignupPage />} />
             <Route path="/login" element={<Navigate to="/vendor/login" replace />} />
 
@@ -68,6 +80,120 @@ const App = () => (
             <Route path="/customer/login" element={<CustomerLoginPage />} />
             <Route path="/customer/register" element={<CustomerSignupPage />} />
             <Route path="/customer/signup" element={<CustomerSignupPage />} />
+
+            {/* Driver Dashboard & Routes */}
+            <Route 
+              path="/driver/dashboard" 
+              element={
+                <RoleProtectedRoute allowedRoles={['driver']}>
+                  <DriverDashboard />
+                </RoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/driver/trips" 
+              element={
+                <RoleProtectedRoute allowedRoles={['driver', 'producer', 'vendor', 'admin']}>
+                  <ModuleProtectedRoute module="transport">
+                    <DashboardLayout />
+                  </ModuleProtectedRoute>
+                </RoleProtectedRoute>
+              }
+            >
+              <Route index element={<TripLoggerPage />} />
+            </Route>
+            <Route 
+              path="/driver/fuel" 
+              element={
+                <RoleProtectedRoute allowedRoles={['driver', 'producer', 'vendor', 'admin']}>
+                  <ModuleProtectedRoute module="transport">
+                    <DashboardLayout />
+                  </ModuleProtectedRoute>
+                </RoleProtectedRoute>
+              }
+            >
+              <Route index element={<FuelEntryPage />} />
+            </Route>
+            <Route 
+              path="/driver/geofence" 
+              element={
+                <RoleProtectedRoute allowedRoles={['driver', 'producer', 'vendor', 'admin']}>
+                  <ModuleProtectedRoute module="transport">
+                    <DashboardLayout />
+                  </ModuleProtectedRoute>
+                </RoleProtectedRoute>
+              }
+            >
+              <Route index element={<GeofencePage />} />
+            </Route>
+            <Route 
+              path="/driver/profile" 
+              element={
+                <RoleProtectedRoute allowedRoles={['driver']}>
+                  <DashboardLayout />
+                </RoleProtectedRoute>
+              }
+            >
+              <Route index element={<VendorProfilePage />} />
+            </Route>
+
+            {/* Camera Crew Dashboard & Routes */}
+            <Route 
+              path="/crew/dashboard" 
+              element={
+                <RoleProtectedRoute allowedRoles={['camera_crew']}>
+                  <CrewDashboard />
+                </RoleProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/crew/handover" 
+              element={
+                <RoleProtectedRoute allowedRoles={['camera_crew', 'producer', 'vendor', 'admin']}>
+                  <ModuleProtectedRoute module="camera">
+                    <DashboardLayout />
+                  </ModuleProtectedRoute>
+                </RoleProtectedRoute>
+              }
+            >
+              <Route index element={<AssetHandoverPage />} />
+            </Route>
+            <Route 
+              path="/crew/reports" 
+              element={
+                <RoleProtectedRoute allowedRoles={['camera_crew', 'producer', 'vendor', 'admin']}>
+                  <ModuleProtectedRoute module="camera">
+                    <DashboardLayout />
+                  </ModuleProtectedRoute>
+                </RoleProtectedRoute>
+              }
+            >
+              <Route index element={<CameraReportsPage />} />
+            </Route>
+            <Route 
+              path="/crew/expendables" 
+              element={
+                <RoleProtectedRoute allowedRoles={['camera_crew', 'producer', 'vendor', 'admin']}>
+                  <ModuleProtectedRoute module="camera">
+                    <DashboardLayout />
+                  </ModuleProtectedRoute>
+                </RoleProtectedRoute>
+              }
+            >
+              <Route index element={<ExpendablesPage />} />
+            </Route>
+            <Route 
+              path="/crew/rfq" 
+              element={
+                <RoleProtectedRoute allowedRoles={['camera_crew', 'producer', 'vendor', 'admin']}>
+                  <ModuleProtectedRoute module="camera">
+                    <DashboardLayout />
+                  </ModuleProtectedRoute>
+                </RoleProtectedRoute>
+              }
+            >
+              <Route index element={<RFQPage />} />
+            </Route>
 
             {/* Vendor Module Routes with vendorId validation */}
             <Route 
@@ -91,8 +217,12 @@ const App = () => (
               <Route index element={<TransportModulePage />} />
             </Route>
 
-            {/* Vendor Protected Routes */}
-            <Route element={<ProtectedRoute requiredRole="vendor"><DashboardLayout /></ProtectedRoute>}>
+            {/* Producer/Vendor/Admin Protected Routes - Full Access */}
+            <Route element={
+              <RoleProtectedRoute allowedRoles={['producer', 'vendor', 'admin']}>
+                <DashboardLayout />
+              </RoleProtectedRoute>
+            }>
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/inventory" element={<InventoryPage />} />
               <Route path="/inventory/add" element={<AddFilmGearPage />} />
@@ -116,6 +246,7 @@ const App = () => (
               <Route path="/settings" element={<VendorSettingsPage />} />
             </Route>
 
+            {/* Customer Protected Routes */}
             <Route element={<ProtectedRoute requiredRole="customer"><CustomerLayout /></ProtectedRoute>}>
               <Route path="/customer/dashboard" element={<CustomerDashboard />} />
               <Route path="/customer/browse" element={<BrowseEquipment />} />
