@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { UserPlus, Upload, X, Save } from 'lucide-react';
+import { UserPlus, Upload, X, Save, Send, Mail, Phone, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from '@/hooks/use-toast';
 import { addPersonnel, ServicePersonnel } from '@/store/slices/servicePersonnelSlice';
 
@@ -53,6 +54,10 @@ export const AddPersonnelForm: React.FC<AddPersonnelFormProps> = ({ onSuccess, o
   const [idProofDocument, setIdProofDocument] = useState<string | null>(null);
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [newSpecialization, setNewSpecialization] = useState('');
+  const [inviteViaEmail, setInviteViaEmail] = useState(true);
+  const [inviteViaSms, setInviteViaSms] = useState(true);
+  const [isSending, setIsSending] = useState(false);
+  const [inviteSent, setInviteSent] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -91,13 +96,42 @@ export const AddPersonnelForm: React.FC<AddPersonnelFormProps> = ({ onSuccess, o
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const sendInvite = async (name: string, email: string, phone: string) => {
+    setIsSending(true);
+    // Simulate sending invite
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    const channels: string[] = [];
+    if (inviteViaEmail && email) channels.push(`email (${email})`);
+    if (inviteViaSms && phone) channels.push(`SMS (${phone})`);
+    
+    setIsSending(false);
+    setInviteSent(true);
+    
+    if (channels.length > 0) {
+      toast({
+        title: 'Invite sent! 📩',
+        description: `App invite sent to ${name} via ${channels.join(' and ')}`,
+      });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.name || !formData.role || !formData.idProofType || !formData.idProofNumber) {
       toast({
         title: 'Missing required fields',
         description: 'Please fill in all required fields',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if ((inviteViaEmail && !formData.email) || (inviteViaSms && !formData.phone)) {
+      toast({
+        title: 'Contact info required',
+        description: 'Please provide email/phone for the selected invite method',
         variant: 'destructive',
       });
       return;
@@ -131,6 +165,11 @@ export const AddPersonnelForm: React.FC<AddPersonnelFormProps> = ({ onSuccess, o
       title: 'Personnel added',
       description: `${formData.name} has been added to your service team`,
     });
+
+    // Send invite
+    if (inviteViaEmail || inviteViaSms) {
+      await sendInvite(formData.name, formData.email, formData.phone);
+    }
 
     onSuccess?.();
   };
@@ -351,15 +390,53 @@ export const AddPersonnelForm: React.FC<AddPersonnelFormProps> = ({ onSuccess, o
             </div>
           </div>
 
+          {/* Invite Options */}
+          <div className="space-y-3 rounded-lg border border-primary/20 bg-primary/5 p-4">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Send className="h-4 w-4 text-primary" />
+              Send App Invite
+            </div>
+            <p className="text-xs text-muted-foreground">
+              An invite link will be sent so they can download and join the app.
+            </p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:gap-6">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox
+                  checked={inviteViaEmail}
+                  onCheckedChange={(checked) => setInviteViaEmail(!!checked)}
+                />
+                <Mail className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">Email</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Checkbox
+                  checked={inviteViaSms}
+                  onCheckedChange={(checked) => setInviteViaSms(!!checked)}
+                />
+                <Phone className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">SMS / WhatsApp</span>
+              </label>
+            </div>
+          </div>
+
           <div className="flex gap-3">
             {onCancel && (
               <Button type="button" variant="outline" className="flex-1" onClick={onCancel}>
                 Cancel
               </Button>
             )}
-            <Button type="submit" className="flex-1">
-              <Save className="mr-2 h-4 w-4" />
-              Save Personnel
+            <Button type="submit" className="flex-1" disabled={isSending}>
+              {isSending ? (
+                <>
+                  <Send className="mr-2 h-4 w-4 animate-pulse" />
+                  Sending Invite...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Save & Send Invite
+                </>
+              )}
             </Button>
           </div>
         </form>
