@@ -17,6 +17,7 @@ import { CustomerSignupPage } from './pages/auth/CustomerSignupPage';
 import { VendorSignupPage } from './pages/auth/VendorSignupPage';
 import VendorRoleSelectionPage from './pages/auth/VendorRoleSelectionPage';
 import ProducerLoginPage from './pages/auth/ProducerLoginPage';
+import VendorLoginPage from './pages/auth/VendorLoginPage';
 import CameraManLoginPage from './pages/auth/CameraManLoginPage';
 import DriverLoginPage from './pages/auth/DriverLoginPage';
 import { DashboardPage } from './pages/DashboardPage';
@@ -50,6 +51,7 @@ import TransportModulePage from './pages/vendor/modules/TransportModulePage';
 import CustomerRFQPage from './pages/customer/CustomerRFQPage';
 import { LandingPage } from './pages/LandingPage';
 import NotFound from "./pages/NotFound";
+import VendorDashboardPage from './pages/vendor/VendorDashboardPage';
 
 // Driver & Crew Dashboards
 import DriverDashboard from './pages/driver/DriverDashboard';
@@ -68,18 +70,34 @@ const App = () => (
             {/* Landing Page */}
             <Route path="/" element={<LandingPage />} />
 
-            {/* Vendor Auth Routes */}
-            <Route path="/vendor/login" element={<VendorRoleSelectionPage />} />
-            <Route path="/vendor/driver/login" element={<DriverLoginPage />} />
-            <Route path="/vendor/cameraman/login" element={<CameraManLoginPage />} />
-            <Route path="/vendor/producer/login" element={<ProducerLoginPage />} />
-            <Route path="/vendor/register" element={<VendorSignupPage />} />
-            <Route path="/login" element={<Navigate to="/vendor/login" replace />} />
+            {/* Producer Auth Routes (renamed from Vendor) */}
+            <Route path="/producer/login" element={<VendorRoleSelectionPage />} />
+            <Route path="/producer/driver/login" element={<DriverLoginPage />} />
+            <Route path="/producer/cameraman/login" element={<CameraManLoginPage />} />
+            <Route path="/producer/producer/login" element={<ProducerLoginPage />} />
+            <Route path="/producer/vendor/login" element={<VendorLoginPage />} />
+            <Route path="/producer/register" element={<VendorSignupPage />} />
+            {/* Legacy redirects */}
+            <Route path="/vendor/login" element={<Navigate to="/producer/login" replace />} />
+            <Route path="/vendor/register" element={<Navigate to="/producer/register" replace />} />
+            <Route path="/login" element={<Navigate to="/producer/login" replace />} />
 
             {/* Customer Auth Routes */}
             <Route path="/customer/login" element={<CustomerLoginPage />} />
             <Route path="/customer/register" element={<CustomerSignupPage />} />
             <Route path="/customer/signup" element={<CustomerSignupPage />} />
+
+            {/* Vendor Dashboard (role assignment, user management) */}
+            <Route element={
+              <RoleProtectedRoute allowedRoles={['vendor']}>
+                <DashboardLayout />
+              </RoleProtectedRoute>
+            }>
+              <Route path="/vendor/dashboard" element={<VendorDashboardPage />} />
+              <Route path="/vendor/service-personnel" element={<ServicePersonnelPage />} />
+              <Route path="/vendor/profile" element={<VendorProfilePage />} />
+              <Route path="/vendor/settings" element={<VendorSettingsPage />} />
+            </Route>
 
             {/* Driver Dashboard & Routes */}
             <Route 
@@ -93,7 +111,7 @@ const App = () => (
             <Route 
               path="/driver/trips" 
               element={
-                <RoleProtectedRoute allowedRoles={['driver', 'producer', 'vendor', 'admin']}>
+                <RoleProtectedRoute allowedRoles={['driver', 'producer', 'admin']}>
                   <ModuleProtectedRoute module="transport">
                     <DashboardLayout />
                   </ModuleProtectedRoute>
@@ -105,7 +123,7 @@ const App = () => (
             <Route 
               path="/driver/fuel" 
               element={
-                <RoleProtectedRoute allowedRoles={['driver', 'producer', 'vendor', 'admin']}>
+                <RoleProtectedRoute allowedRoles={['driver', 'producer', 'admin']}>
                   <ModuleProtectedRoute module="transport">
                     <DashboardLayout />
                   </ModuleProtectedRoute>
@@ -117,7 +135,7 @@ const App = () => (
             <Route 
               path="/driver/geofence" 
               element={
-                <RoleProtectedRoute allowedRoles={['driver', 'producer', 'vendor', 'admin']}>
+                <RoleProtectedRoute allowedRoles={['driver', 'producer', 'admin']}>
                   <ModuleProtectedRoute module="transport">
                     <DashboardLayout />
                   </ModuleProtectedRoute>
@@ -149,7 +167,7 @@ const App = () => (
             <Route 
               path="/crew/handover" 
               element={
-                <RoleProtectedRoute allowedRoles={['camera_crew', 'producer', 'vendor', 'admin']}>
+                <RoleProtectedRoute allowedRoles={['camera_crew', 'producer', 'admin']}>
                   <ModuleProtectedRoute module="camera">
                     <DashboardLayout />
                   </ModuleProtectedRoute>
@@ -161,7 +179,7 @@ const App = () => (
             <Route 
               path="/crew/reports" 
               element={
-                <RoleProtectedRoute allowedRoles={['camera_crew', 'producer', 'vendor', 'admin']}>
+                <RoleProtectedRoute allowedRoles={['camera_crew', 'producer', 'admin']}>
                   <ModuleProtectedRoute module="camera">
                     <DashboardLayout />
                   </ModuleProtectedRoute>
@@ -173,7 +191,7 @@ const App = () => (
             <Route 
               path="/crew/expendables" 
               element={
-                <RoleProtectedRoute allowedRoles={['camera_crew', 'producer', 'vendor', 'admin']}>
+                <RoleProtectedRoute allowedRoles={['camera_crew', 'producer', 'admin']}>
                   <ModuleProtectedRoute module="camera">
                     <DashboardLayout />
                   </ModuleProtectedRoute>
@@ -185,7 +203,7 @@ const App = () => (
             <Route 
               path="/crew/rfq" 
               element={
-                <RoleProtectedRoute allowedRoles={['camera_crew', 'producer', 'vendor', 'admin']}>
+                <RoleProtectedRoute allowedRoles={['camera_crew', 'producer', 'admin']}>
                   <ModuleProtectedRoute module="camera">
                     <DashboardLayout />
                   </ModuleProtectedRoute>
@@ -195,31 +213,9 @@ const App = () => (
               <Route index element={<RFQPage />} />
             </Route>
 
-            {/* Vendor Module Routes with vendorId validation */}
-            <Route 
-              path="/vendor/:vendorId/camera" 
-              element={
-                <VendorProtectedRoute validateVendorId>
-                  <DashboardLayout />
-                </VendorProtectedRoute>
-              }
-            >
-              <Route index element={<CameraModulePage />} />
-            </Route>
-            <Route 
-              path="/vendor/:vendorId/transport" 
-              element={
-                <VendorProtectedRoute validateVendorId>
-                  <DashboardLayout />
-                </VendorProtectedRoute>
-              }
-            >
-              <Route index element={<TransportModulePage />} />
-            </Route>
-
-            {/* Producer/Vendor/Admin Protected Routes - Full Access */}
+            {/* Producer/Admin Protected Routes - Full Access (no vendor here) */}
             <Route element={
-              <RoleProtectedRoute allowedRoles={['producer', 'vendor', 'admin']}>
+              <RoleProtectedRoute allowedRoles={['producer', 'admin']}>
                 <DashboardLayout />
               </RoleProtectedRoute>
             }>
@@ -232,13 +228,13 @@ const App = () => (
               <Route path="/analytics" element={<VendorAnalyticsPage />} />
               <Route path="/service-personnel" element={<ServicePersonnelPage />} />
               <Route path="/photo-verification" element={<PhotoVerificationPage />} />
-              {/* Module A - Camera Department */}
+              {/* Camera Department */}
               <Route path="/asset-handover" element={<AssetHandoverPage />} />
               <Route path="/rfq" element={<RFQPage />} />
               <Route path="/camera-reports" element={<CameraReportsPage />} />
               <Route path="/expendables" element={<ExpendablesPage />} />
               <Route path="/scenes-import" element={<ScenesImportPage />} />
-              {/* Module B - Transport & Logistics */}
+              {/* Transport & Logistics */}
               <Route path="/trip-logger" element={<TripLoggerPage />} />
               <Route path="/fuel-entry" element={<FuelEntryPage />} />
               <Route path="/geofence" element={<GeofencePage />} />

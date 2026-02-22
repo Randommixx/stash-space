@@ -19,6 +19,7 @@ import {
   MapPin,
   Fuel,
   Navigation,
+  UserCog,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -32,99 +33,37 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 
-const menuItems = [
-  {
-    title: 'Dashboard',
-    url: '/dashboard',
-    icon: LayoutDashboard,
-  },
-  {
-    title: 'Film Equipment',
-    url: '/inventory',
-    icon: Camera,
-  },
-  {
-    title: 'Rental Bookings',
-    url: '/bookings',
-    icon: Calendar,
-  },
-  {
-    title: 'Active Rentals',
-    url: '/orders',
-    icon: Film,
-  },
-  {
-    title: 'Reports',
-    url: '/analytics',
-    icon: BarChart3,
-  },
+// Producer main menu items (full access)
+const producerMainItems = [
+  { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
+  { title: 'Film Equipment', url: '/inventory', icon: Camera },
+  { title: 'Rental Bookings', url: '/bookings', icon: Calendar },
+  { title: 'Active Rentals', url: '/orders', icon: Film },
+  { title: 'Reports & Analytics', url: '/analytics', icon: BarChart3 },
+];
+
+// Vendor main menu items (user management focus)
+const vendorMainItems = [
+  { title: 'Dashboard', url: '/vendor/dashboard', icon: LayoutDashboard },
+  { title: 'Service Personnel', url: '/vendor/service-personnel', icon: UserCog },
 ];
 
 const cameraDeptItems = [
-  {
-    title: 'Asset Handover',
-    url: '/asset-handover',
-    icon: Package,
-  },
-  {
-    title: 'RFQ Management',
-    url: '/rfq',
-    icon: FileText,
-  },
-  {
-    title: 'Camera Reports',
-    url: '/camera-reports',
-    icon: Clapperboard,
-  },
-  {
-    title: 'Expendables',
-    url: '/expendables',
-    icon: Box,
-  },
+  { title: 'Asset Handover', url: '/asset-handover', icon: Package },
+  { title: 'RFQ Management', url: '/rfq', icon: FileText },
+  { title: 'Camera Reports', url: '/camera-reports', icon: Clapperboard },
+  { title: 'Expendables', url: '/expendables', icon: Box },
 ];
 
 const transportItems = [
-  {
-    title: 'Trip Logger',
-    url: '/trip-logger',
-    icon: Navigation,
-  },
-  {
-    title: 'Fuel Entry',
-    url: '/fuel-entry',
-    icon: Fuel,
-  },
-  {
-    title: 'Geofence',
-    url: '/geofence',
-    icon: MapPin,
-  },
+  { title: 'Trip Logger', url: '/trip-logger', icon: Navigation },
+  { title: 'Fuel Entry', url: '/fuel-entry', icon: Fuel },
+  { title: 'Geofence', url: '/geofence', icon: MapPin },
 ];
 
 const operationsItems = [
-  {
-    title: 'Service Personnel',
-    url: '/service-personnel',
-    icon: Users,
-  },
-  {
-    title: 'Photo Verification',
-    url: '/photo-verification',
-    icon: Shield,
-  },
-];
-
-const settingsItems = [
-  {
-    title: 'Profile',
-    url: '/profile',
-    icon: User,
-  },
-  {
-    title: 'Settings',
-    url: '/settings',
-    icon: Settings,
-  },
+  { title: 'Service Personnel', url: '/service-personnel', icon: Users },
+  { title: 'Photo Verification', url: '/photo-verification', icon: Shield },
 ];
 
 export function AppSidebar() {
@@ -135,11 +74,11 @@ export function AppSidebar() {
 
   const userRole = user?.role;
 
-  // Determine module access based on role
-  const canAccessCamera = ['producer', 'vendor', 'admin', 'camera_crew'].includes(userRole || '');
-  const canAccessTransport = ['producer', 'vendor', 'admin', 'driver'].includes(userRole || '');
-  const canAccessOperations = ['producer', 'vendor', 'admin'].includes(userRole || '');
-  const canAccessMain = ['producer', 'vendor', 'admin'].includes(userRole || '');
+  // Role-based access flags
+  const isProducer = ['producer', 'admin'].includes(userRole || '');
+  const isVendor = userRole === 'vendor';
+  const canAccessCamera = ['producer', 'admin', 'camera_crew'].includes(userRole || '');
+  const canAccessTransport = ['producer', 'admin', 'driver'].includes(userRole || '');
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -150,10 +89,41 @@ export function AppSidebar() {
       : `${baseClasses} text-muted-foreground hover:text-foreground hover:bg-accent`;
   };
 
+  // Settings items differ by role
+  const settingsItems = isVendor
+    ? [
+        { title: 'Profile', url: '/vendor/profile', icon: User },
+        { title: 'Settings', url: '/vendor/settings', icon: Settings },
+      ]
+    : [
+        { title: 'Profile', url: '/profile', icon: User },
+        { title: 'Settings', url: '/settings', icon: Settings },
+      ];
+
+  const renderMenuGroup = (label: string, items: typeof producerMainItems, className?: string) => (
+    <SidebarGroup className={className}>
+      <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
+        {label}
+      </SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu className="space-y-1">
+          {items.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton asChild>
+                <NavLink to={item.url} className={getLinkClasses(item.url)}>
+                  <item.icon className="w-5 h-5" />
+                  {!collapsed && <span className="ml-3">{item.title}</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+
   return (
-    <Sidebar
-      className={`${collapsed ? 'w-18' : 'w-64'} bg-card border-r border-border shadow-soft transition-smooth`}
-    >
+    <Sidebar className={`${collapsed ? 'w-18' : 'w-64'} bg-card border-r border-border shadow-soft transition-smooth`}>
       <SidebarContent className="p-4">
         {/* Logo */}
         <div className="mb-8 px-2">
@@ -171,133 +141,23 @@ export function AppSidebar() {
           )}
         </div>
 
-        {/* Main Navigation - Only for producers, vendors, and admins */}
-        {canAccessMain && (
-          <SidebarGroup>
-            <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
-              Main
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu className="space-y-1">
-                {menuItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <NavLink
-                        to={item.url}
-                        className={getLinkClasses(item.url)}
-                      >
-                        <item.icon className="w-5 h-5" />
-                        {!collapsed && <span className="ml-3">{item.title}</span>}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        {/* Producer: Full main navigation with reports */}
+        {isProducer && renderMenuGroup('Main', producerMainItems)}
 
-        {/* Camera Department - For producers, vendors, admins, and camera_crew */}
-        {canAccessCamera && (
-          <SidebarGroup className="mt-6">
-            <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
-              Camera Dept
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu className="space-y-1">
-                {cameraDeptItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <NavLink
-                        to={item.url}
-                        className={getLinkClasses(item.url)}
-                      >
-                        <item.icon className="w-5 h-5" />
-                        {!collapsed && <span className="ml-3">{item.title}</span>}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        {/* Vendor: User management navigation */}
+        {isVendor && renderMenuGroup('Main', vendorMainItems)}
 
-        {/* Transport & Logistics - For producers, vendors, admins, and drivers */}
-        {canAccessTransport && (
-          <SidebarGroup className="mt-6">
-            <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
-              Transport
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu className="space-y-1">
-                {transportItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <NavLink
-                        to={item.url}
-                        className={getLinkClasses(item.url)}
-                      >
-                        <item.icon className="w-5 h-5" />
-                        {!collapsed && <span className="ml-3">{item.title}</span>}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        {/* Camera Department - Producer & camera_crew only */}
+        {canAccessCamera && renderMenuGroup('Camera Dept', cameraDeptItems, 'mt-6')}
 
-        {/* Operations - Only for producers, vendors, and admins */}
-        {canAccessOperations && (
-          <SidebarGroup className="mt-6">
-            <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
-              Operations
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu className="space-y-1">
-                {operationsItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <NavLink
-                        to={item.url}
-                        className={getLinkClasses(item.url)}
-                      >
-                        <item.icon className="w-5 h-5" />
-                        {!collapsed && <span className="ml-3">{item.title}</span>}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+        {/* Transport - Producer & driver only */}
+        {canAccessTransport && renderMenuGroup('Transport', transportItems, 'mt-6')}
 
-        {/* Settings Navigation */}
-        <SidebarGroup className="mt-6">
-          <SidebarGroupLabel className={collapsed ? 'sr-only' : ''}>
-            Settings
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
-              {settingsItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      className={getLinkClasses(item.url)}
-                    >
-                      <item.icon className="w-5 h-5" />
-                      {!collapsed && <span className="ml-3">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {/* Operations - Producer only */}
+        {isProducer && renderMenuGroup('Operations', operationsItems, 'mt-6')}
+
+        {/* Settings */}
+        {renderMenuGroup('Settings', settingsItems, 'mt-6')}
       </SidebarContent>
     </Sidebar>
   );

@@ -8,12 +8,6 @@ interface VendorProtectedRouteProps {
   validateVendorId?: boolean;
 }
 
-/**
- * Enhanced protected route for vendor module pages
- * - Validates authentication
- * - Ensures user role is 'vendor'
- * - Optionally validates vendorId from route params matches authenticated user
- */
 export const VendorProtectedRoute: React.FC<VendorProtectedRouteProps> = ({ 
   children, 
   validateVendorId = false 
@@ -21,28 +15,26 @@ export const VendorProtectedRoute: React.FC<VendorProtectedRouteProps> = ({
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
   const { vendorId } = useParams<{ vendorId: string }>();
 
-  // Check authentication
   if (!isAuthenticated || !user) {
-    return <Navigate to="/vendor/login" replace />;
+    return <Navigate to="/producer/login" replace />;
   }
 
-  // Check role - allow vendor and producer (both have full access)
-  if (user.role !== 'vendor' && user.role !== 'producer' && user.role !== 'admin') {
-    // Redirect based on user role
+  // Only producer and admin have full vendor module access
+  if (user.role !== 'producer' && user.role !== 'admin') {
     if (user.role === 'customer') {
       return <Navigate to="/customer/dashboard" replace />;
     } else if (user.role === 'driver') {
       return <Navigate to="/driver/dashboard" replace />;
     } else if (user.role === 'camera_crew') {
       return <Navigate to="/crew/dashboard" replace />;
+    } else if (user.role === 'vendor') {
+      return <Navigate to="/vendor/dashboard" replace />;
     }
     return <Navigate to="/" replace />;
   }
 
-  // Validate vendorId from route params matches authenticated user
   if (validateVendorId && vendorId && vendorId !== user.id) {
-    // Attempting to access another vendor's data - redirect to own module
-    return <Navigate to="/vendor/login" replace />;
+    return <Navigate to="/producer/login" replace />;
   }
 
   return <>{children}</>;

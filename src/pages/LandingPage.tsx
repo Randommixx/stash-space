@@ -20,10 +20,10 @@ export const LandingPage: React.FC = () => {
             <Link to="/customer/login">
               <Button variant="ghost">Customer Sign In</Button>
             </Link>
-            <Link to="/vendor/login">
-              <Button variant="ghost">Vendor Sign In</Button>
+            <Link to="/producer/login">
+              <Button variant="ghost">Producer Sign In</Button>
             </Link>
-            <Link to="/vendor/register">
+            <Link to="/producer/register">
               <Button variant="gradient">Get Started</Button>
             </Link>
           </div>
@@ -44,9 +44,9 @@ export const LandingPage: React.FC = () => {
             Track inventory, manage bookings, and grow your revenue effortlessly.
           </p>
           <div className="flex gap-4 justify-center">
-            <Link to="/vendor/register">
+            <Link to="/producer/register">
               <Button size="lg" variant="gradient" className="shadow-primary">
-                Start as Vendor
+                Start as Producer
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </Link>
@@ -159,7 +159,7 @@ export const LandingPage: React.FC = () => {
               <p className="text-lg text-muted-foreground mb-8">
                 Join thousands of vendors who trust RentPro to manage their equipment rentals
               </p>
-              <Link to="/vendor/register">
+              <Link to="/producer/register">
                 <Button size="lg" variant="gradient" className="shadow-primary">
                   Get Started Today
                   <ArrowRight className="w-4 h-4 ml-2" />

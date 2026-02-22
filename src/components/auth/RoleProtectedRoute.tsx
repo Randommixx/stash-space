@@ -11,11 +11,6 @@ interface RoleProtectedRouteProps {
   redirectTo?: string;
 }
 
-/**
- * Role-based access control component
- * Validates user authentication and role permissions
- * Redirects unauthorized users to appropriate pages
- */
 export const RoleProtectedRoute: React.FC<RoleProtectedRouteProps> = ({ 
   children, 
   allowedRoles,
@@ -23,17 +18,14 @@ export const RoleProtectedRoute: React.FC<RoleProtectedRouteProps> = ({
 }) => {
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
 
-  // Check authentication
   if (!isAuthenticated || !user) {
     return <Navigate to="/" replace />;
   }
 
-  // Check role authorization
   if (!allowedRoles.includes(user.role as UserRole)) {
-    // Redirect based on user role to their appropriate dashboard
     const roleRedirects: Record<UserRole, string> = {
       customer: '/customer/dashboard',
-      vendor: '/dashboard',
+      vendor: '/vendor/dashboard',
       producer: '/dashboard',
       driver: '/driver/dashboard',
       camera_crew: '/crew/dashboard',
@@ -47,12 +39,6 @@ export const RoleProtectedRoute: React.FC<RoleProtectedRouteProps> = ({
   return <>{children}</>;
 };
 
-/**
- * Module-specific access control
- * - Driver: Transport module only
- * - Camera Crew: Camera module only  
- * - Producer/Vendor/Admin: All modules
- */
 export const ModuleProtectedRoute: React.FC<{
   children: React.ReactNode;
   module: 'camera' | 'transport';
@@ -60,13 +46,13 @@ export const ModuleProtectedRoute: React.FC<{
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
 
   if (!isAuthenticated || !user) {
-    return <Navigate to="/vendor/login" replace />;
+    return <Navigate to="/producer/login" replace />;
   }
 
   const role = user.role;
 
-  // Producer, vendor, and admin have full access
-  if (['producer', 'vendor', 'admin'].includes(role)) {
+  // Producer and admin have full access
+  if (['producer', 'admin'].includes(role)) {
     return <>{children}</>;
   }
 
@@ -86,7 +72,12 @@ export const ModuleProtectedRoute: React.FC<{
     return <>{children}</>;
   }
 
-  // Customer should not access vendor modules
+  // Vendor should not access department modules directly
+  if (role === 'vendor') {
+    return <Navigate to="/vendor/dashboard" replace />;
+  }
+
+  // Customer should not access producer modules
   if (role === 'customer') {
     return <Navigate to="/customer/dashboard" replace />;
   }

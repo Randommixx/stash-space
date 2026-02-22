@@ -12,7 +12,9 @@ import {
   Package,
   Camera,
   Home,
-  LayoutDashboard
+  LayoutDashboard,
+  UserCog,
+  BarChart3,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -30,11 +32,17 @@ const crewNavItems = [
   { title: 'RFQ', url: '/crew/rfq', icon: Camera },
 ];
 
-const vendorNavItems = [
+const producerNavItems = [
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Inventory', url: '/inventory', icon: Package },
-  { title: 'Bookings', url: '/bookings', icon: ClipboardList },
+  { title: 'Reports', url: '/analytics', icon: BarChart3 },
   { title: 'Profile', url: '/profile', icon: User },
+];
+
+const vendorNavItems = [
+  { title: 'Dashboard', url: '/vendor/dashboard', icon: LayoutDashboard },
+  { title: 'Team', url: '/vendor/service-personnel', icon: UserCog },
+  { title: 'Profile', url: '/vendor/profile', icon: User },
 ];
 
 const customerNavItems = [
@@ -57,10 +65,12 @@ export function MobileBottomNav() {
       case 'customer':
         return customerNavItems;
       case 'vendor':
+        return vendorNavItems;
       case 'producer':
       case 'admin':
+        return producerNavItems;
       default:
-        return vendorNavItems;
+        return producerNavItems;
     }
   };
 
