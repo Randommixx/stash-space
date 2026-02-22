@@ -1,8 +1,11 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp, TrendingDown, Package, Users, IndianRupee, Calendar } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { TrendingUp, TrendingDown, Package, Users, IndianRupee, Calendar, Download, FileText, FileSpreadsheet } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { toast } from 'sonner';
 
 const revenueData = [
   { month: 'Jan', revenue: 45000, bookings: 12 },
@@ -28,11 +31,37 @@ const topCustomers = [
 ];
 
 export const VendorAnalyticsPage: React.FC = () => {
+  const handleExport = (format: string) => {
+    toast.success(`Generating ${format.toUpperCase()} report...`);
+    setTimeout(() => toast.success(`${format.toUpperCase()} report downloaded`), 1500);
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
-        <p className="text-muted-foreground">Track your business performance and insights</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Analytics & Reports</h1>
+          <p className="text-muted-foreground">Track your business performance and generate reports</p>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="gradient">
+              <Download className="w-4 h-4 mr-2" />
+              Export Report
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => handleExport('pdf')}>
+              <FileText className="w-4 h-4 mr-2" /> PDF
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleExport('csv')}>
+              <FileSpreadsheet className="w-4 h-4 mr-2" /> CSV
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleExport('excel')}>
+              <FileSpreadsheet className="w-4 h-4 mr-2" /> Excel
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Key Metrics */}

@@ -16,9 +16,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
   }
 
   if (requiredRole && user?.role !== requiredRole) {
-    // Redirect based on user role
     const roleRedirects: Record<string, string> = {
-      vendor: '/dashboard',
+      vendor: '/vendor/dashboard',
       producer: '/dashboard',
       customer: '/customer/dashboard',
       driver: '/driver/dashboard',

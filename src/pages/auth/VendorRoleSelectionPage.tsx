@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Truck, Camera, Film, ArrowLeft } from 'lucide-react';
+import { Truck, Camera, Film, ArrowLeft, Users } from 'lucide-react';
 
 const VendorRoleSelectionPage: React.FC = () => {
   const roles = [
@@ -11,21 +11,28 @@ const VendorRoleSelectionPage: React.FC = () => {
       title: 'Driver',
       description: 'Access trip logs, fuel entries, and geofence monitoring',
       icon: Truck,
-      path: '/vendor/driver/login',
+      path: '/producer/driver/login',
     },
     {
       id: 'camera_crew',
       title: 'Camera Man',
       description: 'Manage asset handovers, camera reports, and expendables',
       icon: Camera,
-      path: '/vendor/cameraman/login',
+      path: '/producer/cameraman/login',
+    },
+    {
+      id: 'vendor',
+      title: 'Vendor',
+      description: 'Manage users, assign roles, and oversee your team',
+      icon: Users,
+      path: '/producer/vendor/login',
     },
     {
       id: 'producer',
       title: 'Producer',
       description: 'Full access to all modules, reports, and management features',
       icon: Film,
-      path: '/vendor/producer/login',
+      path: '/producer/producer/login',
     },
   ];
 
@@ -37,11 +44,11 @@ const VendorRoleSelectionPage: React.FC = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Link>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Vendor Login</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Producer Login</h1>
           <p className="text-muted-foreground">Select your role to continue</p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {roles.map((role) => (
             <Link key={role.id} to={role.path}>
               <Card className="h-full hover:shadow-lg transition-all cursor-pointer border-2 hover:border-primary">

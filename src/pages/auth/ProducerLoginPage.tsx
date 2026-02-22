@@ -60,7 +60,7 @@ const ProducerLoginPage: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-4 text-center">
-          <Link to="/vendor/login" className="inline-flex items-center text-muted-foreground hover:text-foreground text-sm">
+          <Link to="/producer/login" className="inline-flex items-center text-muted-foreground hover:text-foreground text-sm">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to role selection
           </Link>

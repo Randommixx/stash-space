@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Truck, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Users, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
-const DriverLoginPage: React.FC = () => {
+const VendorLoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -29,15 +29,14 @@ const DriverLoginPage: React.FC = () => {
     dispatch(loginStart());
     
     try {
-      // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Mock user creation with driver role
       const user = {
-        id: `mock-driver-${Date.now()}`,
+        id: `mock-vendor-${Date.now()}`,
         email,
         name: email.split('@')[0],
-        role: 'driver' as const,
+        role: 'vendor' as const,
+        kycStatus: 'approved' as const,
       };
       
       dispatch(loginSuccess(user));
@@ -46,8 +45,8 @@ const DriverLoginPage: React.FC = () => {
         navigator.vibrate(100);
       }
       
-      toast.success('Welcome back, Driver!');
-      navigate('/driver/dashboard');
+      toast.success('Welcome back, Vendor!');
+      navigate('/vendor/dashboard');
     } catch (err) {
       toast.error('An unexpected error occurred');
     } finally {
@@ -64,12 +63,12 @@ const DriverLoginPage: React.FC = () => {
             Back to role selection
           </Link>
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary">
-            <Truck className="h-8 w-8 text-white" />
+            <Users className="h-8 w-8 text-primary-foreground" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold">Driver Login</CardTitle>
+            <CardTitle className="text-2xl font-bold">Vendor Login</CardTitle>
             <CardDescription>
-              Access trip logs, fuel entries & geofence
+              Manage users and assign roles within your team
             </CardDescription>
           </div>
         </CardHeader>
@@ -80,7 +79,7 @@ const DriverLoginPage: React.FC = () => {
               <Input
                 id="email"
                 type="email"
-                placeholder="driver@example.com"
+                placeholder="vendor@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-12"
@@ -125,4 +124,4 @@ const DriverLoginPage: React.FC = () => {
   );
 };
 
-export default DriverLoginPage;
+export default VendorLoginPage;
