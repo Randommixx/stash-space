@@ -47,6 +47,8 @@ const vendorMainItems = [
   { title: 'Dashboard', url: '/vendor/dashboard', icon: LayoutDashboard },
   { title: 'Film Equipment', url: '/vendor/inventory', icon: Camera },
   { title: 'RFQ Management', url: '/vendor/rfq', icon: FileText },
+  { title: 'Photo Verification', url: '/vendor/photo-verification', icon: Shield },
+  { title: 'Expendables', url: '/vendor/expendables', icon: Box },
   { title: 'Service Personnel', url: '/vendor/service-personnel', icon: UserCog },
 ];
 
