@@ -8,7 +8,7 @@ export const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-secondary">
       {/* Navigation */}
-      <nav className="p-6 border-b border-border bg-card/50 backdrop-blur-sm">
+      <nav className="p-4 md:p-6 border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center shadow-primary">
@@ -16,15 +16,15 @@ export const LandingPage: React.FC = () => {
             </div>
             <span className="text-xl font-bold text-foreground">RentPro</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <Link to="/customer/login">
-              <Button variant="ghost">Customer Sign In</Button>
+              <Button variant="ghost" size="sm" className="hidden sm:inline-flex">Customer Sign In</Button>
             </Link>
             <Link to="/producer/login">
-              <Button variant="ghost">Vendor Sign In</Button>
+              <Button variant="ghost" size="sm">Vendor Sign In</Button>
             </Link>
             <Link to="/producer/register">
-              <Button variant="gradient">Get Started</Button>
+              <Button variant="gradient" size="sm">Get Started</Button>
             </Link>
           </div>
         </div>
@@ -174,7 +174,7 @@ export const LandingPage: React.FC = () => {
       <footer className="py-8 px-6 border-t border-border bg-card/50">
         <div className="max-w-6xl mx-auto text-center">
           <p className="text-muted-foreground">
-            © 2024 RentPro. All rights reserved.
+            © {new Date().getFullYear()} RentPro. All rights reserved.
           </p>
         </div>
       </footer>
