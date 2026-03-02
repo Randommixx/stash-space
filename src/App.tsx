@@ -99,6 +99,8 @@ const App = () => (
               <Route path="/vendor/inventory/add" element={<AddFilmGearPage />} />
               <Route path="/vendor/inventory/edit/:id" element={<EditFilmGearPage />} />
               <Route path="/vendor/rfq" element={<RFQPage />} />
+              <Route path="/vendor/photo-verification" element={<PhotoVerificationPage />} />
+              <Route path="/vendor/expendables" element={<ExpendablesPage />} />
               <Route path="/vendor/profile" element={<VendorProfilePage />} />
               <Route path="/vendor/settings" element={<VendorSettingsPage />} />
             </Route>
