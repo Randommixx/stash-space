@@ -45,6 +45,8 @@ const producerMainItems = [
 // Vendor main menu items (user management focus)
 const vendorMainItems = [
   { title: 'Dashboard', url: '/vendor/dashboard', icon: LayoutDashboard },
+  { title: 'Film Equipment', url: '/vendor/inventory', icon: Camera },
+  { title: 'RFQ Management', url: '/vendor/rfq', icon: FileText },
   { title: 'Service Personnel', url: '/vendor/service-personnel', icon: UserCog },
 ];
 

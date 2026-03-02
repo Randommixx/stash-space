@@ -21,7 +21,7 @@ export const LandingPage: React.FC = () => {
               <Button variant="ghost">Customer Sign In</Button>
             </Link>
             <Link to="/producer/login">
-              <Button variant="ghost">Producer Sign In</Button>
+              <Button variant="ghost">Vendor Sign In</Button>
             </Link>
             <Link to="/producer/register">
               <Button variant="gradient">Get Started</Button>
@@ -46,7 +46,7 @@ export const LandingPage: React.FC = () => {
           <div className="flex gap-4 justify-center">
             <Link to="/producer/register">
               <Button size="lg" variant="gradient" className="shadow-primary">
-                Start as Producer
+                Start as Vendor
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </Link>
